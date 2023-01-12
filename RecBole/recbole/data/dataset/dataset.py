@@ -1730,6 +1730,32 @@ class Dataset(torch.utils.data.Dataset):
         next_ds = [self.copy(_) for _ in next_df]
         return next_ds
 
+    def temporal_global_split(self, split_time):
+        """Split interaction records by temporal global split strategy.
+
+        Args:
+            split_time (list): timestamp you want for split
+
+        Returns:
+            list: List of :class:`~Dataset`, whose interaction features has been split.
+        """
+        self.logger.debug(
+            f"temporal global split, split_time=[{split_time}]"
+        )
+        self.inter_feat[self.time_field]
+        timestamp_1 = time.mktime(datetime.strptime(split_time[0], '%Y-%m-%d').timetuple())
+        timestamp_2 = time.mktime(datetime.strptime(split_time[1], '%Y-%m-%d').timetuple())
+
+        next_index = []
+        next_index.append((self.inter_feat[self.time_field] <= timestamp_1).nonzero(as_tuple=True)[0].tolist())
+        next_index.append(((self.inter_feat[self.time_field] > timestamp_1) & (self.inter_feat[self.time_field] <= timestamp_2)).nonzero(as_tuple=True)[0].tolist())
+        next_index.append((self.inter_feat[self.time_field] > timestamp_2).nonzero(as_tuple=True)[0].tolist())
+
+        self._drop_unused_col()
+        next_df = [self.inter_feat[index] for index in next_index]
+        next_ds = [self.copy(_) for _ in next_df]
+        return next_ds
+    
     def shuffle(self):
         """Shuffle the interaction records inplace."""
         self.inter_feat.shuffle()
@@ -1799,6 +1825,10 @@ class Dataset(torch.utils.data.Dataset):
         elif split_mode == "LS":
             datasets = self.leave_one_out(
                 group_by=self.uid_field, leave_one_mode=split_args["LS"]
+            )
+        elif split_mode == "TGS":
+            datasets = self.temporal_global_split(
+                split_time=split_args["TGS"]
             )
         else:
             raise NotImplementedError(
