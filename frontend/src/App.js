@@ -3,6 +3,9 @@ import ProductDetail from "./products/detail/ProductDetail";
 import { Switch, Route } from "react-router-dom";
 import Landing from "./landing/Landing";
 import ProductList from "./products/ProductList";
+import Login from "./pages/Login"
+import Join from "./pages/Register"
+
 
 function App() {
   return (
@@ -16,6 +19,12 @@ function App() {
         </Route>
         <Route path="/" exact>
           <Landing />
+        </Route>
+        <Route path="/login" exact>
+          <Login />
+        </Route>
+        <Route path="/register" exact>
+          <Join />
         </Route>
       </Switch>
     </Template>
