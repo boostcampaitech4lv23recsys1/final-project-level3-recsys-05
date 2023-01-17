@@ -41,19 +41,19 @@ function Join(){
 
         // 비밀번호
     const onChangePassword = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{6,25}$/
         const passwordCurrent = e.target.value
         setPassword(passwordCurrent)
 
         if (!passwordRegex.test(passwordCurrent)) {
-        setPasswordMessage('숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요!')
+        setPasswordMessage('숫자+영문자+특수문자 조합으로 6자리 이상 입력해주세요!')
         setIsPassword(false)
         } else {
         setPasswordMessage('안전한 비밀번호에요 : )')
         setIsPassword(true)
         }
     }, [])
-c
+
     // 비밀번호 확인
     const onChangePasswordConfirm = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +71,19 @@ c
         [password]
     )
 
+    const onChangeUsername = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+        const usernameCurrent = e.target.value
+        setUsername(usernameCurrent)
+
+        if (usernameCurrent.length >1 && usernameCurrent.length < 11) {
+            setUsernameMessage('올바른 닉네임입니다.')
+            setIsUsername(true)
+        } else {
+            setUsernameMessage('2자에서 10자 사이로 입력해 주세요')
+            setIsUsername(false)
+        }
+        }, [])
 
     return (
         <div>
@@ -86,7 +99,7 @@ c
                     </Form.Group>
 
                     <h5>비밀번호</h5>
-                    <div className="mb-2" style={{color: '#808080', fontsize: '1rem'}}>영문, 숫자를 포함한 8자 이상의 비밀번호를 입력해주세요.</div>
+                    <div className="mb-2" style={{color: '#808080', fontsize: '1rem'}}>영문, 숫자, 특수문자를 포함한 6자 이상의 비밀번호를 입력해주세요.</div>
                     <Form.Group as={Row} className="mb-2" controlId="formPassword">
                         <Col sm>
                             <Form.Control type="password" placeholder="비밀번호" onChange={onChangePassword}/>
@@ -101,7 +114,7 @@ c
                     <h5>닉네임</h5>
                     <Form.Group as={Row} className="mb-4" controlId="formUsername">
                         <Col sm>
-                            <Form.Control type="text" placeholder="별명 (2~10자)" />
+                            <Form.Control type="text" placeholder="별명 (2~10자)" onChange={onChangeUsername}/>
                         </Col>
                     </Form.Group>
 
@@ -114,7 +127,7 @@ c
                     
 
                     <div className="d-grid gap-1">
-                        <Button variant="secondary" type="submit" disabled={!(isEmail && isPassword && isConfirmPassword)}>
+                        <Button variant="secondary" type="submit" disabled={!(isEmail && isPassword && isConfirmPassword && isUsername)}>
                             Sign Up
                         </Button>
                     </div>
