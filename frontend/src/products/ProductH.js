@@ -6,7 +6,7 @@ function ProductH(props) {
   const price = 10000;
   let percentOff;
   let offPrice = `${price}Ks`;
-
+  let name = props.name;
   if (props.percentOff && props.percentOff > 0) {
     percentOff = (
       <div
@@ -41,7 +41,7 @@ function ProductH(props) {
             <div className="card-body h-100">
               <div className="d-flex flex-column h-100">
                 <h5 className="card-title text-dark text-truncate mb-1">
-                  Nillkin iPhone X cover
+                  { name }
                 </h5>
                 <span className="card-text text-muted mb-2 flex-shrink-0">
                   {offPrice}

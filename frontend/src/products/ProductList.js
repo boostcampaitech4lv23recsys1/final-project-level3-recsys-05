@@ -1,9 +1,14 @@
 import { Link } from "react-router-dom";
 import Product from "./Product";
-import ProductH from "./ProductH";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ScrollToTopOnMount from "../template/ScrollToTopOnMount";
+import React from "react";
+import axios from "axios";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper.min.css";
+import "swiper/components/navigation/navigation.min.css";
+import SwiperCore, { Navigation } from "swiper";
 
 const categories = [
   "All Products",
@@ -14,60 +19,9 @@ const categories = [
   "Power Banks",
 ];
 
-const brands = ["Apple", "Samsung", "Google", "HTC"];
-
-const manufacturers = ["HOCO", "Nillkin", "Remax", "Baseus"];
-
 function FilterMenuLeft() {
   return (
     <ul className="list-group list-group-flush rounded">
-      <li className="list-group-item d-none d-lg-block">
-        <h5 className="mt-1 mb-2">Browse</h5>
-        <div className="d-flex flex-wrap my-2">
-          {categories.map((v, i) => {
-            return (
-              <Link
-                key={i}
-                to="/products"
-                className="btn btn-sm btn-outline-dark rounded-pill me-2 mb-2"
-                replace
-              >
-                {v}
-              </Link>
-            );
-          })}
-        </div>
-      </li>
-      <li className="list-group-item">
-        <h5 className="mt-1 mb-1">Brands</h5>
-        <div className="d-flex flex-column">
-          {brands.map((v, i) => {
-            return (
-              <div key={i} className="form-check">
-                <input className="form-check-input" type="checkbox" />
-                <label className="form-check-label" htmlFor="flexCheckDefault">
-                  {v}
-                </label>
-              </div>
-            );
-          })}
-        </div>
-      </li>
-      <li className="list-group-item">
-        <h5 className="mt-1 mb-1">Manufacturers</h5>
-        <div className="d-flex flex-column">
-          {manufacturers.map((v, i) => {
-            return (
-              <div key={i} className="form-check">
-                <input className="form-check-input" type="checkbox" />
-                <label className="form-check-label" htmlFor="flexCheckDefault">
-                  {v}
-                </label>
-              </div>
-            );
-          })}
-        </div>
-      </li>
       <li className="list-group-item">
         <h5 className="mt-1 mb-2">Price Range</h5>
         <div className="d-grid d-block mb-3">
@@ -98,6 +52,42 @@ function FilterMenuLeft() {
 
 function ProductList() {
   const [viewType, setViewType] = useState({ grid: true });
+
+  const date = new Date();
+  axios.get("http://localhost:4000/posts",
+  {
+      "Date":date
+  })
+  .then( response => response.data )
+  .then( data => {
+    var index = 0;
+    data.map((d) => {
+      const product = document.getElementById("product0"+index);
+      const image = product.getElementsByClassName("cover")[0];
+      const link = product.getElementsByClassName("link");
+      const star = d.star;
+      const price = d.price;
+      const title = d.title;
+      const url = d.image;
+      const id = d.id;
+      var stars = "";
+      for(var i = 1; i < star; i++) {
+        stars += "★";
+      }
+      for(var j = 0; j < 5 - stars.length; j++) {
+        stars += "☆";
+      }
+      product.getElementsByClassName("title")[0].textContent = title;
+      product.getElementsByClassName("price")[0].textContent = price;
+      product.getElementsByClassName("star")[0].textContent = stars;
+      image.setAttribute("src", url);
+      link[0].setAttribute("href", "https://ohou.se/productions/" + id + "/selling?affect_type=StoreHome&affect_id=");
+      link[1].setAttribute("href", "https://ohou.se/productions/" + id + "/selling?affect_type=StoreHome&affect_id=");
+      index++;
+      return 0;
+    });
+  })
+  .catch( error => console.log(error) );
 
   function changeViewType() {
     setViewType({
@@ -182,18 +172,6 @@ function ProductList() {
         <div className="col-lg-9">
           <div className="d-flex flex-column h-100">
             <div className="row mb-3">
-              <div className="col-lg-3 d-none d-lg-block">
-                <select
-                  className="form-select"
-                  aria-label="Default select example"
-                  defaultValue=""
-                >
-                  <option value="">All Models</option>
-                  <option value="1">iPhone X</option>
-                  <option value="2">iPhone Xs</option>
-                  <option value="3">iPhone 11</option>
-                </select>
-              </div>
               <div className="col-lg-9 col-xl-5 offset-xl-4 d-flex flex-row">
                 <div className="input-group">
                   <input
@@ -206,67 +184,53 @@ function ProductList() {
                     <FontAwesomeIcon icon={["fas", "search"]} />
                   </button>
                 </div>
-                <button
-                  className="btn btn-outline-dark ms-2 d-none d-lg-inline"
-                  onClick={changeViewType}
-                >
-                  <FontAwesomeIcon
-                    icon={["fas", viewType.grid ? "th-list" : "th-large"]}
-                  />
-                </button>
               </div>
             </div>
-            <div
-              className={
-                "row row-cols-1 row-cols-md-2 row-cols-lg-2 g-3 mb-4 flex-shrink-0 " +
-                (viewType.grid ? "row-cols-xl-3" : "row-cols-xl-2")
-              }
+            <h2>용욱님을 위한 추천</h2>
+            <div className="test"></div>
+            <br/>
+            <Swiper
+              className="col-12"
+              spaceBetween={0}
+              slidesPerView={2}
+              scrollbar={{ draggable: true }}
+              navigation
+              pagination={{ clickable: true }}
+              breakpoints={{
+                768: {
+                  slidesPerView: 5,
+                },
+              }}
             >
-              {Array.from({ length: 10 }, (_, i) => {
-                if (viewType.grid) {
-                  return (
-                    <Product key={i} percentOff={i % 2 === 0 ? 15 : null} />
-                  );
-                }
-                return (
-                  <ProductH key={i} percentOff={i % 4 === 0 ? 15 : null} />
-                );
-              })}
-            </div>
-            <div className="d-flex align-items-center mt-auto">
-              <span className="text-muted small d-none d-md-inline">
-                Showing 10 of 100
-              </span>
-              <nav aria-label="Page navigation example" className="ms-auto">
-                <ul className="pagination my-0">
-                  <li className="page-item">
-                    <a className="page-link" href="!#">
-                      Previous
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="!#">
-                      1
-                    </a>
-                  </li>
-                  <li className="page-item active">
-                    <a className="page-link" href="!#">
-                      2
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="!#">
-                      3
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="!#">
-                      Next
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
+              {Array.from({ length:10 }, (_, i) => 
+              <SwiperSlide>
+                <Product key={i} percentOff={i % 2 === 0 ? 15 : null} name='samsung' id={"product0" + i}/>
+              </SwiperSlide>
+              )}
+            </Swiper>
+            <br/>
+            <h2>내가 찾는 핸드폰</h2>
+            <br/>
+            <Swiper
+              className="col-12"
+              spaceBetween={0}
+              slidesPerView={2}
+              scrollbar={{ draggable: true }}
+              navigation
+              pagination={{ clickable: true }}
+              breakpoints={{
+                768: {
+                  slidesPerView: 5,
+                },
+              }}
+            >
+            {Array.from({ length:10 }, (_, i) => 
+            <SwiperSlide>
+              <Product key={i} percentOff={i % 2 === 0 ? 15 : null} name='samsung' className={"product1" + i}/>
+            </SwiperSlide>
+            )}
+            </Swiper>
+            <br/>
           </div>
         </div>
       </div>
