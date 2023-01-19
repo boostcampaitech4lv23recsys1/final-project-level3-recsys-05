@@ -5,6 +5,8 @@ import Landing from "./landing/Landing";
 import ProductList from "./products/ProductList";
 import Login from "./pages/Login"
 import Join from "./pages/Register"
+import History from './pages/History'
+import Mypage from "./pages/Mypage";
 
 
 function App() {
@@ -25,6 +27,12 @@ function App() {
         </Route>
         <Route path="/register" exact>
           <Join />
+        </Route>
+        <Route path="/history" exact>
+          <History />
+        </Route>
+        <Route path="/mypage" exact>
+          <Mypage />
         </Route>
       </Switch>
     </Template>
