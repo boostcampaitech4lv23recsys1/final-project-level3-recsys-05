@@ -42,78 +42,38 @@ function FilterApply() {
   const max = document.getElementsByClassName("max-price")[1].valueAsNumber;
   axios.get("http://localhost:8000/filter?minp=" + min + "&maxp=" + max)
   .then( response => response.data )
-  .then( data => { 
-    var index = 0;
-    var ids = [];
-    var titles = [];
-    var prices = [];
-    var starss = [];
-    var urls = [];
-    data.map((d) => {
-      const product = document.getElementById("product1"+index);
-      const image = product.getElementsByClassName("cover")[0];
-      const link = product.getElementsByClassName("link")[0];
-      const star = d.star;
-      const price = d.price;
-      const title = d.title;
-      const url = d.image;
+  .then( data => {
+    data.map((d, index) => {
       const id = d.id;
-      var stars = "";
-      for(var i = 1; i < star; i++) {
-        stars += "★";
+      const title = d.title;
+      const price = d.price;
+      var star = ""
+      for(var i=0; i<d.star-1; i++) {
+        star += "★";
       }
-      for(var j = 0; j < 5 - stars.length; j++) {
-        stars += "☆";
+      for(var j=0; j<5-d.star; j++) {
+        star += "☆";
       }
-      product.getElementsByClassName("title")[0].textContent = title;
-      product.getElementsByClassName("price")[0].textContent = price;
-      product.getElementsByClassName("star")[0].textContent = stars;
-      starss.push(stars);
-      // image.setAttribute("src", url);
-      link.setAttribute("href", "https://ohou.se/productions/" + id + "/selling?affect_type=StoreHome&affect_id=");
-      index++;
-      return 0;
-    });
-    console.log(starss);
+      const image = d.image;
+      const elements = document.getElementsByClassName('swiper');
+      Array.from(elements).map((element) => {
+        const category = element.id;
+        console.log(category + index)
+        const card = element.getElementsByClassName('card' +  category + index)[0];
+        card.getElementsByClassName('link')[0].setAttribute('href', "https://ohou.se/productions/" + id + "/selling?affect_type=StoreHome&affect_id=");
+        card.getElementsByClassName('title')[0].textContent = title;
+        card.getElementsByClassName('price')[0].textContent = price;
+        card.getElementsByClassName('star')[0].textContent = star;
+        card.getElementsByClassName('cover')[0].setAttribute('src', image);
+        return 0;
+      })
+    })
   })
   .catch( error => console.log(error) );
 }
 
 function ProductList() {
-  const [viewType, setViewType] = useState({ grid: true });
-
-  const date = new Date();
-  axios.get("http://localhost:8000"
-  )
-  .then( response => response.data )
-  .then( data => {  
-    var index = 0;
-    data.map((d) => {
-      const product = document.getElementById("product1"+index);
-      const image = product.getElementsByClassName("cover")[0];
-      const link = product.getElementsByClassName("link")[0];
-      const star = d.star;
-      const price = d.price;
-      const title = d.title;
-      const url = d.image;
-      const id = d.id;
-      var stars = "";
-      for(var i = 1; i < star; i++) {
-        stars += "★";
-      }
-      for(var j = 0; j < 5 - stars.length; j++) {
-        stars += "☆";
-      }
-      product.getElementsByClassName("title")[0].textContent = title;
-      product.getElementsByClassName("price")[0].textContent = price;
-      product.getElementsByClassName("star")[0].textContent = stars;
-      image.setAttribute("src", url);
-      link.setAttribute("href", "https://ohou.se/productions/" + id + "/selling?affect_type=StoreHome&affect_id=");
-      index++;
-      return 0;
-    });
-  })
-  .catch( error => console.log(error) );
+  const [ viewType, setViewType ] = useState({ grid: true });
 
   function changeViewType() {
     setViewType({
