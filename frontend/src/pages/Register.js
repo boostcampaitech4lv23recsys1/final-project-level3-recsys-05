@@ -131,6 +131,8 @@ function Join(){
                             Sign Up
                         </Button>
                     </div>
+                    
+                    <br/>
                 </Form>
             </Container>
         </div>
