@@ -7,6 +7,7 @@ import Login from "./pages/Login"
 import Join from "./pages/Register"
 import History from './pages/History'
 import Mypage from "./pages/Mypage";
+import Detail from './pages/DetailPage'
 
 
 function App() {
@@ -33,6 +34,9 @@ function App() {
         </Route>
         <Route path="/mypage" exact>
           <Mypage />
+        </Route>
+        <Route path="/detail" exact>
+          <Detail />
         </Route>
       </Switch>
     </Template>
