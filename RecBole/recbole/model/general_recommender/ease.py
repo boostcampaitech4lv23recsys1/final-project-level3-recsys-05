@@ -29,7 +29,6 @@ class EASE(GeneralRecommender):
 
         # need at least one param
         self.dummy_param = torch.nn.Parameter(torch.zeros(1))
-
         X = dataset.inter_matrix(form="csr").astype(np.float32)
         # just directly calculate the entire score matrix in init
         # (can't be done incrementally)
@@ -45,9 +44,11 @@ class EASE(GeneralRecommender):
 
         # invert. this takes most of the time
         P = np.linalg.inv(G)
-        B = P / (-np.diag(P))
+        # P = sp.linalg.inv(G)
+        B = P / (-P.diagonal())
         # zero out diag
         np.fill_diagonal(B, 0.0)
+        # B.setdiag(0)
 
         # instead of computing and storing the entire score matrix,
         # just store B and compute the scores on demand

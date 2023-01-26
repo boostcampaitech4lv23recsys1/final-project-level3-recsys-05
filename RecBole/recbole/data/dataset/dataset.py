@@ -491,7 +491,8 @@ class Dataset(torch.utils.data.Dataset):
             usecols=usecols,
             dtype=dtype,
             encoding=encoding,
-            engine="python",
+            lineterminator="\n",
+            # engine="python",
         )
         df.columns = columns
 
