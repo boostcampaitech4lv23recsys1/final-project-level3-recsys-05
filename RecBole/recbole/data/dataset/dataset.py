@@ -2045,7 +2045,7 @@ class Dataset(torch.utils.data.Dataset):
             row_num, max_col_num = self.item_num, self.user_num
             row_ids, col_ids = item_ids, user_ids
 
-        history_len = np.zeros(row_num, dtype=np.int64)
+        history_len = np.zeros(row_num, dtype=np.int32)
         for row_id in row_ids:
             history_len[row_id] += 1
 
@@ -2061,8 +2061,8 @@ class Dataset(torch.utils.data.Dataset):
                 f"{col_num / max_col_num * 100}% of the total."
             )
 
-        history_matrix = np.zeros((row_num, col_num), dtype=np.int64)
-        history_value = np.zeros((row_num, col_num))
+        history_matrix = np.zeros((row_num, col_num), dtype=np.int16)
+        history_value = np.zeros((row_num, col_num), dtype=np.float16)
         history_len[:] = 0
         for row_id, value, col_id in zip(row_ids, values, col_ids):
             if history_len[row_id] >= col_num:

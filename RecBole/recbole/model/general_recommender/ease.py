@@ -42,10 +42,12 @@ class EASE(GeneralRecommender):
 
         # convert to dense because inverse will be dense
         G = G.todense()
-
+        G = G.astype(np.float32);
         # invert. this takes most of the time
         P = np.linalg.inv(G)
+        P = P.astype(np.float32);
         B = P / (-np.diag(P))
+        B = B.astype(np.float32);
         # zero out diag
         np.fill_diagonal(B, 0.0)
 
