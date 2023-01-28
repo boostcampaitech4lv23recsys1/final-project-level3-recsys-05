@@ -1,1 +1,3 @@
 RecBole/dataset/*
+*/.ipynb_checkpoints
+*/__pycache__
