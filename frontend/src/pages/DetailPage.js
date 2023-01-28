@@ -9,14 +9,6 @@ function Detail() {
     const [ products, setProducts ] = useState([]);	
     const [ count, setCount ] = useState(0);
 
-    useEffect(() => {
-        axios.get('http://localhost:5785/jims').then((resp) => {
-            setProducts([...resp.data.posts])
-          }).catch((e) => {
-            console.log(e);
-          });
-      }, [])
-    
     const product = products[1]
 
     return (
@@ -25,7 +17,6 @@ function Detail() {
                 <Container>
                     <ItemBox>
                         <ImgBox>
-                            <img src={product.image} alt="상품이미지" />
                         </ImgBox>
                         <ItemInfoBox>
                             <InfoBox>
@@ -33,7 +24,7 @@ function Detail() {
                                 <PriceBox>
                                     <span>
                                         100000
-                                        <small>100</small>
+                                        <small>원</small>
                                     </span>
                                     <CountBox>
                                         <button
