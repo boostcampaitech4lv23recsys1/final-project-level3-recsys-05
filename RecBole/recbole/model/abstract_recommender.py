@@ -130,6 +130,7 @@ class AutoEncoderMixin(object):
         Returns:
             torch.FloatTensor: The user's feature of a batch of user, shape: [batch_size, n_items]
         """
+        user = user.cpu() # 
         # Following lines construct tensor of shape [B,n_items] using the tensor of shape [B,H]
         col_indices = self.history_item_id[user].flatten()
         row_indices = torch.arange(user.shape[0]).repeat_interleave(
