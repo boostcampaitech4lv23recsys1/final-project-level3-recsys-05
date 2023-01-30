@@ -33,6 +33,12 @@ mask = Image.new("RGB", icon.size, (255,255,255))
 mask.paste(icon,icon)
 mask = np.array(mask)
 
+class Options(BaseModel):
+    living : Optional[int] = None
+    family : Optional[int] = None
+    area : Optional[int] = None
+    style : Optional[int] = None
+
 def from_image_to_bytes(img):
     """
     pillow image 객체를 bytes로 변환
@@ -82,6 +88,30 @@ def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
         return JSONResponse(img)
     
     return '리뷰가 존재하지 않습니다.'
+
+@app.get('/recommend/normal', description='get normal recommendation')
+def get_normal_recommendation(filters : Options):
+    product_si = pd.read_csv("data/side_info.csv")
+
+    star_avg_df = data2.groupby(by=['item_id:token'], as_index=False)['star_avg:float'].mean()
+    star_avg_items = star_avg_df.loc[star_avg_df['star_avg:float'] > 4.63, 'item_id:token'].tolist()
+
+    cnt_df = data2.groupby(by=['item_id:token'], as_index=False)['user_id:token'].count()
+    basic_items = cnt_df.loc[cnt_df['user_id:token'] > 100]['item_id:token'].tolist()
+
+    random_items = list(set(star_avg_items).intersection(set(basic_items)))
+    if not (filters.living and filters.area and filters.family and filters.style):
+        selected_items = random.sample(random_items, 10)
+        recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
+        item_info = get_item_info(recommend)
+    
+    return {
+            'item_ids' : item_info[0],
+            'img_urls' : item_info[1],
+            'original_prices' : item_info[2],
+            'selling_prices' : item_info[3],
+            'titles' : item_info[4],
+            }
 
 @app.get('/recommend/similar/item', description='get simlilar item')
 def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
