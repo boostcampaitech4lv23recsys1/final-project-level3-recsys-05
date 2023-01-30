@@ -22,22 +22,28 @@ from collections import Counter
 from konlpy.tag import Okt
 from PIL import Image
 
-
+LIMIT = 10000000000
 app = FastAPI()
 
 data = pd.read_csv("data/for_word_cloud.csv", lineterminator='\n')
 data2 = pd.read_csv("data/final_v2.inter", lineterminator='\n')
+product_si = pd.read_csv("data/side_info.csv")
 
 icon = Image.open('data/house.png')
 mask = Image.new("RGB", icon.size, (255,255,255))
 mask.paste(icon,icon)
 mask = np.array(mask)
 
+wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumPen.ttf',
+               background_color='white',
+               width=800, height=600,
+               max_words=200,
+               mask=mask)
+
 class Options(BaseModel):
-    living : Optional[int] = None
-    family : Optional[int] = None
-    area : Optional[int] = None
-    style : Optional[int] = None
+    price_s : Optional[int] = 0
+    price_e : Optional[int] = LIMIT
+    category : Optional[List[str]] = product_si['category0'].tolist()
 
 def from_image_to_bytes(img):
     """
@@ -67,9 +73,29 @@ def get_item_info(df):
     titles = titles.tolist()
     return [item_ids, img_urls, original_prices, selling_prices, titles]
 
+def get_item_info2(df, filters, k):
+    df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
+                 (df['category0'].isin(filters.category))]
+    indices = df_.index
+    selected_items = random.sample(indices, 10)
+    df_ = df_.iloc[selected_items, :]
+
+    item_ids = df_['item_id'].tolist()
+    img_urls = df_['img_main'].tolist()
+    original_prices = df_['original_price'].tolist()
+    selling_prices = df_['selling_price'].tolist()
+    titles = df_['title']
+    
+    pattern1 = r'\([^)]*\)'
+    pattern2 = r'\[[^)]*\]'
+    titles = titles.apply(lambda x: re.sub(pattern1, '', x))
+    titles = titles.apply(lambda x: re.sub(pattern2, '', x))
+    titles = titles.tolist()
+    return [item_ids, img_urls, original_prices, selling_prices, titles]
+
 @app.get('/')
 def test():
-    return {'hello' : 'this is the main page'}
+    return 'hello this is the main page'
 
 @app.get('/wordcloud/', description='get wordcloud')
 def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
@@ -78,20 +104,14 @@ def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
         okt = Okt()
         nouns = okt.nouns(text)
         c = Counter(nouns)
-        wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumPen.ttf',
-               background_color='white',
-               width=800, height=600,
-               max_words=200,  
-               mask=mask)
         gen = wc.generate_from_frequencies(c)
         img = from_image_to_bytes(gen.to_image())
         return JSONResponse(img)
     
     return '리뷰가 존재하지 않습니다.'
 
-@app.get('/recommend/normal', description='get normal recommendation')
-def get_normal_recommendation(filters : Options):
-    product_si = pd.read_csv("data/side_info.csv")
+@app.post('/recommend/normal', description='get normal recommendation')
+def get_normal_recommendation(filters : Options, k : int):
 
     star_avg_df = data2.groupby(by=['item_id:token'], as_index=False)['star_avg:float'].mean()
     star_avg_items = star_avg_df.loc[star_avg_df['star_avg:float'] > 4.63, 'item_id:token'].tolist()
@@ -100,11 +120,15 @@ def get_normal_recommendation(filters : Options):
     basic_items = cnt_df.loc[cnt_df['user_id:token'] > 100]['item_id:token'].tolist()
 
     random_items = list(set(star_avg_items).intersection(set(basic_items)))
-    if not (filters.living and filters.area and filters.family and filters.style):
-        selected_items = random.sample(random_items, 10)
-        recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
-        item_info = get_item_info(recommend)
-    
+    print(filters)
+    print(filters.price_s, filters.price_e, filters.category)
+    # if not (filters.price_s and filters.price_e != LIMIT and filters.category):
+    selected_items = random.sample(random_items, 10)
+    recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
+    item_info = get_item_info2(recommend, filters, k)
+    # else:
+        # 1
+
     return {
             'item_ids' : item_info[0],
             'img_urls' : item_info[1],
@@ -117,7 +141,6 @@ def get_normal_recommendation(filters : Options):
 def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
     from gensim.models import Word2Vec
 
-    product_si = pd.read_csv("data/side_info.csv")
     model = Word2Vec.load('model/item2vec.model')
     item_vectors = model.wv
     index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
