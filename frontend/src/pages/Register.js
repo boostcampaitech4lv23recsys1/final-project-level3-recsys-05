@@ -120,6 +120,9 @@ function Join(){
             if(res.ok) {
                 console.log("ok");
             }
+            else {
+                alert("중복 Email입니다.")
+            }
         });
     }
 

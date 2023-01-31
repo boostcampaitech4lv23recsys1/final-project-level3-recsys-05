@@ -29,7 +29,7 @@ function App() {
         <Route path="/register" exact>
           <Join />
         </Route>
-        <Route path="/history" exact>
+        <Route path="/history/:userid" exact>
           <History />
         </Route>
         <Route path="/mypage/:itemid" exact>
