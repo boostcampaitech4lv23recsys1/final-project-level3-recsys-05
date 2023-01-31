@@ -1,14 +1,17 @@
 import { Navbar, NavDropdown, Nav, Container } from 'react-bootstrap';	
 import { useEffect, useState } from 'react';	
 import axios from 'axios';	
+import { useParams } from 'react-router-dom';
 	
 function Mypage() {	
+  const params = useParams();
   const [ products, setProducts ] = useState([]);	
   const [ displayProducts, setDisplayProducts ]= useState(3);	
   	
   useEffect(() => {
-    axios.get('http://localhost:5785/jims').then((resp) => {
-        setProducts([...resp.data.posts])
+    console.log(params.itemid)
+    axios.get('http://34.64.87.78:8000/wish/' + params.itemid).then((resp) => {
+        setProducts([...resp.data])
       }).catch((e) => {
         console.log(e);
       });
@@ -45,9 +48,9 @@ function Card(props) {
   return (	
     <>	
       <div className='col-md-4'>	
-        <img src={ props.thepd.image } width="100%" />	
+        <img src={ props.thepd.image_url } width="100%" />	
         <h3>{ props.thepd.title }</h3>	
-        <p>{ props.thepd.star } & { props.thepd.price }</p>	
+        <p>{ props.thepd.review_avg } & { props.thepd.selling_price }</p>	
       </div>	
     </>	
   )	
