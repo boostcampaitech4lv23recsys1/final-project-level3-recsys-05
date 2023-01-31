@@ -1,34 +1,38 @@
 /* eslint-disable react/button-has-type */
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import ItemSwiper from '../products/ItemSwiper';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 // 상세 제품 페이지
 function Detail() {
     const [ product, setProduct ] = useState([]);
-    const [ price, setPrice ] = useState(10000);
     const [ count, setCount ] = useState(0);
     const [ cloud, setCloud ] = useState('#');
+    const [ similar, setSimilar ] = useState([])
 
-    const item_id = 265527;
+    const item_id = useParams()['itemid'];
     
     useEffect(() => {
         const controller = new AbortController()
-        axios.get('http://34.64.87.78:8000/item/' + item_id)
+        axios.get('http://localhost:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
-            console.log(data)
+            console.log(data);
             setProduct(data);
-            setPrice(data.selling_price);
         })
         .catch( error => console.log(error) );
-        axios.get('http://34.64.87.78:8000/item/' + item_id)
+        axios.get('http://localhost:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
-            console.log(data)
-            setCloud(data.image_url);
+            setCloud(data.img_main);
+        })
+        .catch( error => console.log(error) );
+        axios.get('http://localhost:8000')
+        .then(response => response.data)
+        .then(data => {
+            setSimilar(data);
         })
         .catch( error => console.log(error) );
         return () => {
@@ -42,7 +46,7 @@ function Detail() {
                 <Container>
                     <ItemBox>
                         <ImgBox>
-                            <img src={product.image_url}/>
+                            <img src={product.img_main}/>
                         </ImgBox>
                         <ItemInfoBox>
                             <InfoBox>
@@ -51,9 +55,24 @@ function Detail() {
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
+                                {
+                                    [product.review_avg].map((star) => {
+                                        console.log(star);
+                                        var stars = ""
+                                        for(var i=0; i<star-1; i++) {
+                                            stars += "★";
+                                        }
+                                        for(var j=0; j<5-star; j++) {
+                                            stars += "☆";
+                                        }
+                                        return (
+                                            <div>{ stars }</div>
+                                        )
+                                    })
+                                }
                                 <PriceBox>
                                     <span>
-                                        {price}
+                                        {product.selling_price}
                                         <small>원</small>
                                     </span>
                                     <CountBox>
@@ -77,20 +96,25 @@ function Detail() {
                                         </button>
                                     </CountBox>
                                 </PriceBox>
-
                                 <TotalPrice>
                                     <span>
-                                        합계 <strong>{price * count} 원</strong>
+                                        합계 <strong>{product.selling_price * count} 원</strong>
                                     </span>
                                 </TotalPrice>
                                 <ButtonBox>
                                     <CartBtn>장바구니 담기</CartBtn>
-                                    <BuyBtn>바로 구매하기</BuyBtn>
+                                    <BuyBtn><a href={`https://ohou.se/productions/${item_id}/selling?affect_type=StoreHome&affect_id=`} target='/blank'>바로 구매하기</a></BuyBtn>
                                 </ButtonBox>
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
-                    <img src={ cloud }/>
+                    <ImgBox>
+                        <img src={ cloud }/>
+                    </ImgBox>
+                    <br/>
+                    <h3>유사한 물품</h3>
+                    <br/>
+                    <ItemSwiper products={ similar } category='3'/>
                 </Container>
             )}
         </>

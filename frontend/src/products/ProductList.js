@@ -8,7 +8,6 @@ import FilterMenuLeft from "./FilterMenuLeft";
 import ItemSwiper from "./ItemSwiper";
 
 function ProductList() {
-  const [ viewType, setViewType ] = useState({ grid: true });
   const [ products, setProducts ] = useState([]);
 
   useEffect(() => {
@@ -29,21 +28,13 @@ function ProductList() {
   applyButton.setAttribute('className', "btn btn-dark apply");
   applyButton.textContent = 'Apply';
 
-  const getProducts = (minprice, maxprice) => {
-    console.log(1);
-    axios.get("http://localhost:8000/filter?minp=" + minprice + "&maxp=" + maxprice)
+  function getFilter(minprice, maxprice, category, style) {
+    axios.post(`http://localhost:8000/filter?minp=${minprice}&maxp=${maxprice}&category=${category}`, [style])
     .then( response => response.data )
     .then( data => {
-      console.log('ss');
       setProducts(data);
     })
     .catch( error => console.log(error) );
-  }
-
-  function changeViewType() {
-    setViewType({
-      grid: !viewType.grid,
-    });
   }
 
   return (
@@ -91,7 +82,7 @@ function ProductList() {
               data-bs-parent="#accordionFilter"
             >
               <div className="accordion-body p-0">
-                <FilterMenuLeft getting = { getProducts }/>
+                <FilterMenuLeft getFilter = { getFilter }/>
               </div>
             </div>
           </div>
@@ -101,7 +92,7 @@ function ProductList() {
       <div className="row mb-4 mt-lg-3">
         <div className="d-none d-lg-block col-lg-3">
           <div className="border rounded shadow-sm">
-            <FilterMenuLeft />
+            <FilterMenuLeft getFilter = { getFilter }/>
           </div>
         </div>
         <div className="col-lg-9">
@@ -128,6 +119,10 @@ function ProductList() {
             <h2>내가 찾는 핸드폰</h2>
             <br/>
             <ItemSwiper category="2" products={ products }></ItemSwiper>
+            <br/>
+            <h2>유사한 유저가 구매한 물품</h2>
+            <br/>
+            <ItemSwiper category="3" products={ products }></ItemSwiper>
             <br/>
           </div>
         </div>

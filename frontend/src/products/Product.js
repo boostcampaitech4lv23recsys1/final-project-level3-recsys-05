@@ -1,5 +1,3 @@
-import Image from "../nillkin-case-1.jpg";
-import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import axios from "axios";
@@ -37,7 +35,7 @@ function Product(props) {
 
   return (
       <div className={"card shadow-sm card" + category}>
-        <a href={ "https://ohou.se/productions/" + id + "/selling?affect_type=StoreHome&affect_id=" } className="link" target="_blank">
+        <a href={ "#/detail/" + id } className="link" target="blank">
           <img
             className="card-img-top bg-dark cover"
             height="200"

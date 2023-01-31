@@ -35,7 +35,7 @@ function App() {
         <Route path="/mypage/:itemid" exact>
           <Mypage />
         </Route>
-        <Route path="/detail" exact>
+        <Route path="/detail/:itemid" exact>
           <Detail />
         </Route>
       </Switch>
