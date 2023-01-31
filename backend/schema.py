@@ -5,3 +5,7 @@ class UserBase(BaseModel):
     password: str
     username: str
     ohouse: str
+
+class LoginBase(BaseModel):
+    email: str
+    password: str

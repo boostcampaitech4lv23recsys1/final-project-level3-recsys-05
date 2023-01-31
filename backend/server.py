@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.sql import text
 from typing import List
 import psycopg2
 import schema
@@ -48,11 +49,15 @@ def insert_register(user: schema.UserBase, session: Session = Depends(get_db)):
         username = user.username,
         ohouse = int(user.ohouse)
     )
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
 
-    return db_user
+    theuser = session.query(model.Users).filter(model.Users.email == user.email).first()
+    if theuser is None:
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+        return {"response": "ok"}
+    else:
+        raise HTTPException(status_code=404, detail="Email already exists")
 
 
 # @app.post("/register")
@@ -74,11 +79,17 @@ def insert_register(user: schema.UserBase, session: Session = Depends(get_db)):
 
 #     return {"insertion": "ok"}
 
+
+@app.get("/abcd")
+def item_lists():
+    a = [265527, 456986]
+    return a
+
 @app.get("/item/{itemid}")
 def return_item_info(itemid: int, session: Session = Depends(get_db)):
     item = session.query(model.Items).filter(model.Items.item_id == itemid).first()
     if item is None:
-        raise HTTPException(status_cod=404, detail="No item in db")
+        raise HTTPException(status_code=404, detail="No item in db")
     return item
 
 @app.get("/wish/{userid}")
@@ -88,23 +99,19 @@ def return_wish_info(userid: int, session: Session = Depends(get_db)):
     for item in wishitems:
         theitem = session.query(model.Items).filter(model.Items.item_id == item.item_id).first()
         if theitem is None:
-            raise HTTPException(status_cod=404, detail="No item in db")
+            raise HTTPException(status_code=404, detail="No item in db")
         iteminfos.append(theitem)
 
     return iteminfos
 
-@app.post()
-
 @app.post("/wish")
 def insert_wish(wishitem: int, session: Session = Depends(get_db)):
-    db_user = model.Users(
-        email = user.email,
-        password = user.password,
-        username = user.username,
-        ohouse = int(user.ohouse)
-    )
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+    pass
 
-    return db_user
+@app.post("/login")
+def logingo(logininfo: schema.LoginBase, session: Session = Depends(get_db)):
+    theuser = session.query(model.Users).filter(model.Users.email == logininfo.email and model.Users.password == logininfo.password).first()
+    if theuser is None:
+        raise HTTPException(status_code=404, detail="No user in db")
+    else:
+        return theuser.user_id
