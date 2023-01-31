@@ -10,7 +10,8 @@ from recbole.quick_start import load_data_and_model
 app = FastAPI()
 
  # model, dataset 불러오기
-config, model, dataset, train_data, _, _ = load_data_and_model("saved/CDAE-Jan-26-2023_03-25-07.pth")
+# config, model, dataset, train_data, _, _ = load_data_and_model("saved/CDAE-Jan-26-2023_03-25-07.pth")
+config, model, dataset, train_data, _, _ = load_data_and_model("saved/CDAE-Jan-27-2023_06-49-36.pth")
 
 # device 설정
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
