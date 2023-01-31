@@ -2,28 +2,58 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import ItemSwiper from '../products/ItemSwiper';
 import axios from 'axios';
 
 // 상세 제품 페이지
 function Detail() {
-    const [ products, setProducts ] = useState([]);	
+    const [ product, setProduct ] = useState([]);
+    const [ price, setPrice ] = useState(10000);
     const [ count, setCount ] = useState(0);
+    const [ cloud, setCloud ] = useState('#');
 
-    const product = products[1]
-
+    const item_id = 265527;
+    
+    useEffect(() => {
+        const controller = new AbortController()
+        axios.get('http://34.64.87.78:8000/item/' + item_id)
+        .then(response => response.data)
+        .then(data => {
+            console.log(data)
+            setProduct(data);
+            setPrice(data.selling_price);
+        })
+        .catch( error => console.log(error) );
+        axios.get('http://34.64.87.78:8000/item/' + item_id)
+        .then(response => response.data)
+        .then(data => {
+            console.log(data)
+            setCloud(data.image_url);
+        })
+        .catch( error => console.log(error) );
+        return () => {
+        controller.abort();
+        }
+    }, []);
+    
     return (
         <>
             {product && (
                 <Container>
                     <ItemBox>
                         <ImgBox>
+                            <img src={product.image_url}/>
                         </ImgBox>
                         <ItemInfoBox>
                             <InfoBox>
-                                <p>{product.title}</p>
+                                <h3>{product.title}</h3>
+                                <p>{product.brand}</p>
+                                <small className="category">{ product.category0 }</small>
+                                <br/>
+                                <small className="category">{ product.category1 }</small>
                                 <PriceBox>
                                     <span>
-                                        100000
+                                        {price}
                                         <small>원</small>
                                     </span>
                                     <CountBox>
@@ -50,7 +80,7 @@ function Detail() {
 
                                 <TotalPrice>
                                     <span>
-                                        합계 <strong>10394 원</strong>
+                                        합계 <strong>{price * count} 원</strong>
                                     </span>
                                 </TotalPrice>
                                 <ButtonBox>
@@ -60,10 +90,11 @@ function Detail() {
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
+                    <img src={ cloud }/>
                 </Container>
             )}
         </>
-    );
+    )
 }
 
 const Container = styled.div`

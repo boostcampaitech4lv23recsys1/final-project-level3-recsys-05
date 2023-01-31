@@ -10722,3 +10722,8 @@ textarea.form-control-lg {
   margin: 0 0 0 auto;
   color:#d63384;
 }
+
+.category {
+  width: 100px;
+  margin: 0 0 0 auto;
+}
