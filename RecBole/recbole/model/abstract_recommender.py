@@ -117,6 +117,9 @@ class AutoEncoderMixin(object):
 
     def build_histroy_items(self, dataset):
         self.history_item_id, self.history_item_value, _ = dataset.history_item_matrix()
+        # from scipy.sparse import csr_matrix
+        # self.dataset_csr = csr_matrix(([1]*len(dataset), (dataset['user_id'], dataset['item_id'])), (dataset.user_num, dataset.item_num))
+        
 
     def get_rating_matrix(self, user):
         r"""Get a batch of user's feature with the user's id and history interaction matrix.
@@ -127,6 +130,7 @@ class AutoEncoderMixin(object):
         Returns:
             torch.FloatTensor: The user's feature of a batch of user, shape: [batch_size, n_items]
         """
+        user = user.cpu() # 
         # Following lines construct tensor of shape [B,n_items] using the tensor of shape [B,H]
         col_indices = self.history_item_id[user].flatten()
         row_indices = torch.arange(user.shape[0]).repeat_interleave(
@@ -137,6 +141,7 @@ class AutoEncoderMixin(object):
             (row_indices, col_indices), self.history_item_value[user].flatten()
         )
         rating_matrix = rating_matrix.to(self.device)
+        # rating_matrix = torch.Tensor(np.asarray(self.dataset_csr[user.cpu()].todense())).to(self.device)
         return rating_matrix
 
 

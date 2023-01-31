@@ -124,6 +124,7 @@ class Dataset(torch.utils.data.Dataset):
     def _get_preset(self):
         """Initialization useful inside attributes."""
         self.dataset_path = self.config["data_path"]
+        self.dataset_path = '/opt/ml/input/final-project-level3-recsys-05/RecBole/' + self.config["data_path"]
 
         self.field2type = {}
         self.field2source = {}
@@ -219,7 +220,6 @@ class Dataset(torch.utils.data.Dataset):
             os.path.join(current_path, f"../../properties/dataset/{url_file}.yaml")
         ) as f:
             dataset2url = yaml.load(f.read(), Loader=self.config.yaml_loader)
-
         if self.dataset_name in dataset2url:
             url = dataset2url[self.dataset_name]
             return url
@@ -265,6 +265,7 @@ class Dataset(torch.utils.data.Dataset):
             token (str): dataset name.
             dataset_path (str): path of dataset dir.
         """
+        print(f'THIS IS DATASET_PATH : {dataset_path}')
         if not os.path.exists(dataset_path):
             self._download()
         self._load_inter_feat(token, dataset_path)
