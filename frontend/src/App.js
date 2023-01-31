@@ -32,7 +32,7 @@ function App() {
         <Route path="/history" exact>
           <History />
         </Route>
-        <Route path="/mypage" exact>
+        <Route path="/mypage/:itemid" exact>
           <Mypage />
         </Route>
         <Route path="/detail" exact>

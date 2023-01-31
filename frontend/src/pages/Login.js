@@ -6,6 +6,9 @@ import Container from 'react-bootstrap/Container';
 import Logo from '../landing/logo.png'
 
 function Login(){
+    const sessionStorage = window.sessionStorage;
+    
+
     return (
         <div>
             <Container className="panel mt-5 pt-5">
