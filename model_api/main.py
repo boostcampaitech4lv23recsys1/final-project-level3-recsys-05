@@ -128,7 +128,6 @@ def test():
 def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
     text = '\n'.join(data.loc[(data['item_id'] == item_id) & (data['split'] == split), 'review'].tolist())
     if text:
-        print(text)
         okt = Okt()
         nouns = okt.nouns(text)
         c = Counter(nouns)
@@ -167,6 +166,15 @@ def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
     # item_info = get_item_info(result)
 
     return get_item_info(result)
+
+@app.get('/recommend/similar/user', description='get similar user')
+def get_similar_user(user_id: int = Query(None), top_k: int = Query(None)):
+    import annoy
+    ann = annoy.AnnoyIndex(100, 'angular')
+    ann.load('model/annoy.ann')
+    recommend = ann.get_nns_by_item(0, n=top_k)
+
+    data2.loc[data2['user_id'].isin(recommend)]
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
 def rec_topk(input_list: List[int], top_k: int):
