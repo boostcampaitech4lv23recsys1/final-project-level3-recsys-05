@@ -16,6 +16,8 @@ from fastapi.param_functions import Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, Any, Dict, List
+from starlette.middleware.cors import CORSMiddleware
+from collections import defaultdict
 
 from wordcloud import WordCloud
 from matplotlib import rc
@@ -28,6 +30,16 @@ from recbole.quick_start import load_data_and_model
 
 LIMIT = 10000000000
 app = FastAPI()
+
+origins = [
+    '*'
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ['GET', 'POST']
+)
 
 data = pd.read_csv("data/for_word_cloud.csv", lineterminator='\n')
 data2 = pd.read_csv("data/final_v2.inter", lineterminator='\n')
@@ -62,10 +74,10 @@ token2item_id = {id: i for i, id in enumerate(item_id2token)}
 class Products(BaseModel):
     item: List[int] = Field(default_factory=list)
 
-class Options(BaseModel):
+class Filters(BaseModel):
     price_s : Optional[int] = 0
     price_e : Optional[int] = LIMIT
-    category : Optional[List[str]] = product_si['category0'].tolist()
+    category : List[str] = product_si['category0'].unique().tolist()
 
 def from_image_to_bytes(img):
     """
@@ -93,15 +105,27 @@ def get_item_info(df):
     titles = titles.apply(lambda x: re.sub(pattern1, '', x))
     titles = titles.apply(lambda x: re.sub(pattern2, '', x))
     titles = titles.tolist()
-    return [item_ids, img_urls, original_prices, selling_prices, titles]
+
+    result = defaultdict(list)
+    for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles)):
+        a, b, c, d, e = val
+        result[idx].append(a)
+        result[idx].append(b)
+        result[idx].append(c)
+        result[idx].append(d)
+        result[idx].append(e)
+
+    return result
 
 def get_item_info2(df, filters, k):
     df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
                  (df['category0'].isin(filters.category))]
-    indices = df_.index
-    selected_items = random.sample(indices, k)
+    indices = df_['item_id'].tolist()
+    if len(indices) >= k:
+        selected_items = random.sample(indices, k)
+    else: selected_items = indices
     df_ = df_.iloc[selected_items, :]
-
+    
     item_ids = df_['item_id'].tolist()
     img_urls = df_['img_main'].tolist()
     original_prices = df_['original_price'].tolist()
@@ -113,7 +137,17 @@ def get_item_info2(df, filters, k):
     titles = titles.apply(lambda x: re.sub(pattern1, '', x))
     titles = titles.apply(lambda x: re.sub(pattern2, '', x))
     titles = titles.tolist()
-    return [item_ids, img_urls, original_prices, selling_prices, titles]
+
+    result = defaultdict(list)
+    for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles)):
+        a, b, c, d, e = val
+        result[idx].append(a)
+        result[idx].append(b)
+        result[idx].append(c)
+        result[idx].append(d)
+        result[idx].append(e)
+
+    return result
 
 @app.get('/')
 def test():
@@ -133,7 +167,7 @@ def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
     return '리뷰가 존재하지 않습니다.'
 
 @app.post('/recommend/normal', description='get normal recommendation')
-def get_normal_recommendation(filters : Options, k : int):
+def get_normal_recommendation(filters : Filters, k : int):
 
     star_avg_df = data2.groupby(by=['item_id:token'], as_index=False)['star_avg:float'].mean()
     star_avg_items = star_avg_df.loc[star_avg_df['star_avg:float'] > 4.63, 'item_id:token'].tolist()
@@ -144,18 +178,11 @@ def get_normal_recommendation(filters : Options, k : int):
     random_items = list(set(star_avg_items).intersection(set(basic_items)))
     print(filters)
     print(filters.price_s, filters.price_e, filters.category)
-    # if not (filters.price_s and filters.price_e != LIMIT and filters.category):
-    selected_items = random.sample(random_items, 10)
+    selected_items = random.sample(random_items, k)
     recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
-    item_info = get_item_info2(recommend, filters, k)
+    # item_info = get_item_info2(recommend, filters, k)
 
-    return {
-            'item_ids' : item_info[0],
-            'img_urls' : item_info[1],
-            'original_prices' : item_info[2],
-            'selling_prices' : item_info[3],
-            'titles' : item_info[4],
-            }
+    return get_item_info2(recommend, filters, k)
 
 @app.get('/recommend/similar/item', description='get simlilar item')
 def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
@@ -166,15 +193,9 @@ def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
     index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
 
     result = product_si[product_si['item_id'].isin(index)]
-    item_info = get_item_info(result)
+    # item_info = get_item_info(result)
 
-    return {
-            'item_ids' : item_info[0],
-            'img_urls' : item_info[1],
-            'original_prices' : item_info[2],
-            'selling_prices' : item_info[3],
-            'titles' : item_info[4],
-            }
+    return get_item_info(result)
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
 def rec_topk(input_list: List[int], top_k: int):
@@ -209,7 +230,8 @@ def rec_topk(input_list: List[int], top_k: int):
     for item in pred_list[0]:
         output_list.append(int(item_id2token[item]))
 
-    return Products(item=output_list)
+    result = get_item_info(product_si.loc[product_si['item_id'].isin(output_list)])
+    return result
 
 
 if __name__ == '__main__':

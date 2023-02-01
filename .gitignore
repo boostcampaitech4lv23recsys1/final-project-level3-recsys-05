@@ -4,3 +4,4 @@ model_api/__pycache__/
 model_api/wordcloud1111.py
 model_api/main copy.py
 CDAE-Jan-27-2023_06-49-36.pth
+model_api/model/annoy.ann
