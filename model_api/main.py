@@ -1,5 +1,4 @@
 import io
-import os
 import re
 import sys
 import base64
@@ -12,15 +11,13 @@ import matplotlib.pyplot as plt
 
 from fastapi import FastAPI
 from fastapi import FastAPI, Query
-from fastapi.param_functions import Depends
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
-from typing import Optional, Any, Dict, List
+from pydantic import BaseModel
+from typing import Optional, List
 from starlette.middleware.cors import CORSMiddleware
 from collections import defaultdict
 
 from wordcloud import WordCloud
-from matplotlib import rc
 from collections import Counter
 from konlpy.tag import Okt
 from PIL import Image
@@ -70,10 +67,6 @@ item_id2token = dataset.field2id_token[config['ITEM_ID_FIELD']]
 token2user_id = {id: i for i, id in enumerate(user_id2token)}
 token2item_id = {id: i for i, id in enumerate(item_id2token)}
 
-# filtering 된 데이터 반환
-class Products(BaseModel):
-    item: List[int] = Field(default_factory=list)
-
 class Filters(BaseModel):
     price_s : Optional[int] = 0
     price_e : Optional[int] = LIMIT
@@ -93,39 +86,17 @@ def from_image_to_bytes(img):
     decoded = encoded.decode('ascii')
     return decoded
 
-def get_item_info(df):
-    item_ids = df['item_id'].tolist()
-    img_urls = df['img_main'].tolist()
-    original_prices = df['original_price'].tolist()
-    selling_prices = df['selling_price'].tolist()
-    titles = df['title']
-    
-    pattern1 = r'\([^)]*\)'
-    pattern2 = r'\[[^)]*\]'
-    titles = titles.apply(lambda x: re.sub(pattern1, '', x))
-    titles = titles.apply(lambda x: re.sub(pattern2, '', x))
-    titles = titles.tolist()
+def get_item_info(df, filters=None, k=None):
+    if filters and k:
+        df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
+                    (df['category0'].isin(filters.category))]
+        indices = df_['item_id'].tolist()
+        if len(indices) >= k:
+            selected_items = random.sample(indices, k)
+        else: selected_items = indices
+        df_ = df_.loc[df_['item_id'].isin(selected_items)]
+    else: df_ = df
 
-    result = defaultdict(list)
-    for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles)):
-        a, b, c, d, e = val
-        result[idx].append(a)
-        result[idx].append(b)
-        result[idx].append(c)
-        result[idx].append(d)
-        result[idx].append(e)
-
-    return result
-
-def get_item_info2(df, filters, k):
-    df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
-                 (df['category0'].isin(filters.category))]
-    indices = df_['item_id'].tolist()
-    if len(indices) >= k:
-        selected_items = random.sample(indices, k)
-    else: selected_items = indices
-    df_ = df_.iloc[selected_items, :]
-    
     item_ids = df_['item_id'].tolist()
     img_urls = df_['img_main'].tolist()
     original_prices = df_['original_price'].tolist()
@@ -180,9 +151,8 @@ def get_normal_recommendation(filters : Filters, k : int):
     print(filters.price_s, filters.price_e, filters.category)
     selected_items = random.sample(random_items, k)
     recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
-    # item_info = get_item_info2(recommend, filters, k)
 
-    return get_item_info2(recommend, filters, k)
+    return get_item_info(recommend, filters, k)
 
 @app.get('/recommend/similar/item', description='get simlilar item')
 def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
