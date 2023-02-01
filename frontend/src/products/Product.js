@@ -18,24 +18,17 @@ function Product(props) {
     }
   };
 
-  const id = props.id;
-  const name = props.name;
-  const price = props.price;
-  const star = props.star;
-  const Image = props.image;
-  const category = props.category;
+  const product = props.product;
+  const id = product[0];
+  const name = product[4];
+  const price = product[3];
+  const star = product[5];
+  const Image = product[1];
+  const brand = product[6];
+  const field = props.field;
   
-  var stars = ""
-  for(var i=0; i<star-1; i++) {
-    stars += "★";
-  }
-  const rest = 5 - stars.length
-  for(var j=0; j<rest; j++) {
-    stars += "☆";
-  }
-
   return (
-      <div className={"card shadow-sm card" + category}>
+      <div className={"card shadow-sm card" + field}>
         <a href={ "#/detail/" + id } className="link" target="_blank">
           <img
             className="card-img-top bg-dark cover"
@@ -49,9 +42,9 @@ function Product(props) {
           <h5 className="card-title text-center text-dark text-truncate title">
             { name }
           </h5>
-          <p className="card-text text-center text-muted mb-0 price">{ price }</p>
-          <p className="card-text text-center text-muted mb-0 star">{ stars }</p>
-          <StarRate star={ star } id={ id }/>
+          <p className="card-text text-center text-muted mb-0 brand">{ brand }</p>
+          <p className="card-text text-center text-muted mb-0 price">{ '￦' + [price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }</p>
+          <StarRate className="card-text text-center text-muted mb-0 star" star={ star } id={ id }/>
           <div className="d-grid d-block text-center">
               <FontAwesomeIcon icon={["far", "heart"]} id={ `like${id}`} onClick={ handleClick } className={"like"}/>
           </div>

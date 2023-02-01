@@ -5,6 +5,7 @@ import ItemSwiper from '../products/ItemSwiper';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import StarRate from '../products/StarRate';
 
 // 상세 제품 페이지
 function Detail() {
@@ -33,7 +34,6 @@ function Detail() {
         axios.get('http://localhost:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
-            console.log(data);
             setProduct(data);
         })
         .catch( error => console.log(error) );
@@ -53,7 +53,7 @@ function Detail() {
         return () => {
         controller.abort();
         }
-    }, []);
+        }, []);
     
     return (
         <>
@@ -70,73 +70,31 @@ function Detail() {
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
-                                {
-                                    [product.review_avg].map((star) => {                                      
-                                        var stars = ""
-                                        for(var i=0; i<star-1; i++) {
-                                            stars += "★";
-                                        }
-                                        const rest = 5 - stars.length
-                                        for(var j=0; j<rest; j++) {
-                                            stars += "☆";
-                                        }
-                                        return (
-                                            <div>{ stars }</div>
-                                        )
-                                    })
-                                }
+                                <StarRate star={ product.review_avg } id={ item_id }/>
                                 <PriceBox>
                                     <span>
-                                        {product.selling_price}
+                                        <small>판매가  </small>
+                                        {[product.selling_price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         <small>원</small>
                                     </span>
-                                    <CountBox>
-                                        <button
-                                            onClick={() => {
-                                                if (count < 2) {
-                                                    return;
-                                                }
-                                                setCount(count - 1);
-                                            }}
-                                        >
-                                            -
-                                        </button>
-                                        <div>{count}</div>
-                                        <button
-                                            onClick={() => {
-                                                setCount(count + 1);
-                                            }}
-                                        >
-                                            +
-                                        </button>
-                                    </CountBox>
                                 </PriceBox>
-                                    <div>{ `운송비 : ${product.delivery_fee}원` }</div>
-                                    <div>{ `${product.delivery_fee_free_threshold}원 이상 구매 시 운송 무료` }</div>
-                                    {
-                                        [product.is_sold_out].map((soldout) => {
-                                            if(soldout) {
-                                                return (
-                                                    <div>품절</div>
-                                                )
-                                            } else {
-                                                return (
-                                                    <div>판매중</div>
-                                                )
-                                            }
-                                        })
-                                    }
-                                <TotalPrice>
+
+                                <DeliveryBox>
                                     <span>
-                                        합계 <strong>{product.selling_price * count} 원</strong>
+                                        <small> + 배송비 </small>
+                                        {[product.delivery_fee].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                        <small>원</small>
                                     </span>
+                                </DeliveryBox>
+
+                                <TotalPrice>
+                                    <span>배송비 포함 <strong>{(product.selling_price + product.delivery_fee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong>원</span>
                                 </TotalPrice>
                                 <ButtonBox>
-                                    <CartBtn>
-                                        <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
-                                    </CartBtn>
-                                    <BuyBtn><a href={`https://ohou.se/productions/${item_id}/selling?affect_type=StoreHome&affect_id=`} target='_blank'>오늘의집</a></BuyBtn>
+                                    <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
+                                    <BuyBtn onClick={() => {window.open('https://ohou.se/productions/' + item_id)}}>오늘의집에서 보기</BuyBtn>
                                 </ButtonBox>
+
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
@@ -209,6 +167,21 @@ const PriceBox = styled.div`
         }
     }
 `;
+const DeliveryBox = styled.div`
+display: flex;
+text-align: right;
+& span {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: bold;
+    width: 100%;
+    & small {
+        font-size: 14px;
+        margin-left: 2px;
+    }
+}
+`;
+
 const CountBox = styled.div`
     display: flex;
     width: 100%;

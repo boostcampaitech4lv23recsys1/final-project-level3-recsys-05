@@ -141,15 +141,15 @@ function ProductList() {
             </div>
             <h2>용욱님을 위한 추천</h2>
             <br/>
-            <ItemSwiper category="1" products={ products }></ItemSwiper>
+            <ItemSwiper field="1" products={ products }></ItemSwiper>
             <br/>
-            <h2>내가 찾는 핸드폰</h2>
+            <h2>인기있는 상품</h2>
             <br/>
-            <ItemSwiper category="2" products={ totals }></ItemSwiper>
+            <ItemSwiper field="2" products={ totals }></ItemSwiper>
             <br/>
             <h2>유사한 유저가 구매한 물품</h2>
             <br/>
-            <ItemSwiper category="3" products={ simusers }></ItemSwiper>
+            <ItemSwiper field="3" products={ simusers }></ItemSwiper>
             <br/>
           </div>
         </div>

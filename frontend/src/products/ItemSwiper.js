@@ -5,13 +5,16 @@ import SwiperCore, { Navigation } from "swiper";
 import Product from "./Product";
 
 function ItemSwiper(props) {
-  const products = props.products;
-  const category = props.category;
+  const products = [];
+  const field = props.field;
+  for(var k in props.products) {
+    products.push(props.products[k])
+  }
 
   return (
     <>
       <Swiper
-        className={ "col-12 swiper swiper" + category }
+        className={ "col-12 swiper swiper" + field }
         spaceBetween={0}
         slidesPerView={2}
         scrollbar={{ draggable: true }}
@@ -22,17 +25,17 @@ function ItemSwiper(props) {
             slidesPerView: 5,
           },
         }}
-        id={category}
+        id={field}
       >
       {	
-        products.map((pro, index) => {
+        products.map((product) => {
           return (
-            <SwiperSlide key={category + index}>
-              <Product id={pro.id} name={pro.title} price={pro.price} star={pro.star} image={pro.image} category={category + index}/>	
+            <SwiperSlide key={field + k}>
+              <Product product={ product } field={field + k}/>	
             </SwiperSlide>
           )
-        })	
-      }	
+        })
+      }
       </Swiper>
     </>
   );
