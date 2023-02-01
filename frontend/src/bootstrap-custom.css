@@ -10727,3 +10727,11 @@ textarea.form-control-lg {
   width: 100px;
   margin: 0 0 0 auto;
 }
+
+.category_deactivate {
+  background-color: #cacaca;
+}
+
+.category_activate {
+  background-color: #ff6f61;
+}

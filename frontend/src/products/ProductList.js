@@ -14,20 +14,19 @@ function ProductList() {
 
   useEffect(() => {
     const controller = new AbortController()
-    axios.get("http://localhost:8000", {signal:controller.signal})      
+    axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", [201149], {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
-      console.log(data);
       setProducts(data);
     })
     .catch( error => console.log(error) );
-    axios.get(`http://localhost:8000`, {signal:controller.signal})      
+    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setTotals(data);
     })
     .catch( error => console.log(error) );
-    axios.get("http://localhost:8000", {signal:controller.signal})      
+    axios.get(`http://115.85.181.95:30002/recommend/similar/user?user_id=${11}&top_k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setSimusers(data);
@@ -43,23 +42,11 @@ function ProductList() {
   applyButton.setAttribute('className', "btn btn-dark apply");
   applyButton.textContent = 'Apply';
 
-  function getFilter(minprice, maxprice, category, style) {
-    axios.post(`http://localhost:8000/filter?minp=${minprice}&maxp=${maxprice}&category=${category}`, [style])
-    .then( response => response.data )
-    .then( data => {
-      setProducts(data);
-    })
-    .catch( error => console.log(error) );
-    axios.post(`http://localhost:8000/filter?minp=${minprice}&maxp=${maxprice}&category=${category}`, [style])
+  function getFilter(minprice, maxprice, category) {
+    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10&minp=${minprice}&maxp=${maxprice}`, category)
     .then( response => response.data )
     .then( data => {
       setTotals(data);
-    })
-    .catch( error => console.log(error) );
-    axios.post(`http://localhost:8000/filter?minp=${minprice}&maxp=${maxprice}&category=${category}`, [style])
-    .then( response => response.data )
-    .then( data => {
-      setSimusers(data);
     })
     .catch( error => console.log(error) );
   }

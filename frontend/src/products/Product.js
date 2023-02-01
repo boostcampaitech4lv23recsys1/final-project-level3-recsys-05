@@ -19,12 +19,12 @@ function Product(props) {
   };
 
   const product = props.product;
-  const id = product[0];
-  const name = product[4];
-  const price = product[3];
-  const star = product[5];
-  const Image = product[1];
-  const brand = product[6];
+  const id = product.item_ids;
+  const name = product.titles;
+  const price = product.selling_prices;
+  const star = product.star_avgs;
+  const Image = product.img_urls;
+  const brand = product.brands;
   const field = props.field;
   
   return (

@@ -5,11 +5,8 @@ import SwiperCore, { Navigation } from "swiper";
 import Product from "./Product";
 
 function ItemSwiper(props) {
-  const products = [];
+  const products = props.products;
   const field = props.field;
-  for(var k in props.products) {
-    products.push(props.products[k])
-  }
 
   return (
     <>
@@ -28,10 +25,10 @@ function ItemSwiper(props) {
         id={field}
       >
       {	
-        products.map((product) => {
+        products.map((product, index) => {
           return (
-            <SwiperSlide key={field + k}>
-              <Product product={ product } field={field + k}/>	
+            <SwiperSlide key={field + index}>
+              <Product product={ product } field={field + index}/>	
             </SwiperSlide>
           )
         })

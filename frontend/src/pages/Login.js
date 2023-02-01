@@ -25,7 +25,9 @@ function Login(){
             }),
         }).then((res) => {
             if(res.ok) {
+                console.log(res.statusText)
                 sessionStorage.setItem("loginEmail", email)
+                window.open(`#/products`, '_self')
             }
             else {
                 alert("아이디 혹은 비밀번호가 틀렸습니다.")

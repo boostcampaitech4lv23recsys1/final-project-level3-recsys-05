@@ -3,15 +3,13 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ItemSwiper from '../products/ItemSwiper';
 import axios from 'axios';
+import StarRate from '../products/StarRate';
 import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import StarRate from '../products/StarRate';
 
 // 상세 제품 페이지
 function Detail() {
     const [ product, setProduct ] = useState([]);
-    const [ count, setCount ] = useState(0);
-    const [ cloud, setCloud ] = useState('#');
     const [ similar, setSimilar ] = useState([]);
     var [clicked, setClicked] = useState(false);
   
@@ -37,23 +35,16 @@ function Detail() {
             setProduct(data);
         })
         .catch( error => console.log(error) );
-        axios.get('http://localhost:8000/item/' + item_id)
-        .then(response => response.data)
-        .then(data => {
-            setCloud(data.img_main);
-        })
-        .catch( error => console.log(error) );
         axios.get(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
         .then(response => response.data)
         .then(data => {
-            console.log(data);
             setSimilar(data);
         })
         .catch( error => console.log(error) );
         return () => {
         controller.abort();
         }
-        }, []);
+    }, []);
     
     return (
         <>
@@ -61,24 +52,27 @@ function Detail() {
                 <Container>
                     <ItemBox>
                         <ImgBox>
-                            <img src={product.img_main}/>
+                            <img src={product.img_main} alt="상품 이미지"/>
                         </ImgBox>
                         <ItemInfoBox>
                             <InfoBox>
-                                <h3>{product.title}</h3>
-                                <p>{product.brand}</p>
+                                <small>{product.brand}</small>
+                                <h1>{product.title}</h1>
+                                <StarRate star = {product.review_avg} />
+                                <div style={{"marginTop": "13px"}}>{product.wish_count} 명이 찜 했어요!</div>
+                                <hr></hr>
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
-                                <StarRate star={ product.review_avg } id={ item_id }/>
+
+
+                                
                                 <PriceBox>
                                     <span>
-                                        <small>판매가  </small>
                                         {[product.selling_price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         <small>원</small>
                                     </span>
                                 </PriceBox>
-
                                 <DeliveryBox>
                                     <span>
                                         <small> + 배송비 </small>
@@ -86,22 +80,24 @@ function Detail() {
                                         <small>원</small>
                                     </span>
                                 </DeliveryBox>
-
                                 <TotalPrice>
+                                    <span>
                                     <span>배송비 포함 <strong>{(product.selling_price + product.delivery_fee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong>원</span>
+                                    </span>
                                 </TotalPrice>
                                 <ButtonBox>
-                                    <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
+                                    <CartBtn>
+                                        <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
+                                    </CartBtn>
                                     <BuyBtn onClick={() => {window.open('https://ohou.se/productions/' + item_id)}}>오늘의집에서 보기</BuyBtn>
                                 </ButtonBox>
-
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
                     <br/>
                     <h3>유사한 물품</h3>
                     <br/>
-                    <ItemSwiper products={ similar } category='3'/>
+                    <ItemSwiper products={ similar } field='4'/>
                 </Container>
             )}
         </>
@@ -122,11 +118,11 @@ const ItemBox = styled.div`
 `;
 
 const ImgBox = styled.div`
-    min-width: 609px;
+    min-width: 500px;
     cursor: default;
     & img {
-        width: 609px;
-        height: 407px;
+        width: 500px;
+        height: 500px;
         min-height: 230px;
         border: none;
         vertical-align: middle;
@@ -153,18 +149,37 @@ const InfoBox = styled.div`
     }
 `;
 const PriceBox = styled.div`
-    margin-top: 40px;
-    display: flex;
-    & span {
-        font-size: 24px;
-        line-height: 24px;
+marginTop: 60px;
+display: flex;
+text-align: right;
+& span {
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: bold;
+    width: 100%;
+    & small {
+        font-size: 14px;
+        margin-left: 2px;
         font-weight: bold;
-        width: 100%;
-        & small {
-            font-size: 14px;
-            margin-left: 2px;
-            font-weight: bold;
+    }
+}
+`;
+
+const TotalPrice = styled.div`
+    padding: 16px 0;
+    text-align: right;
+    & span {
+        font-size: 14px;
+        & strong {
+            font-size: 22px;
+            color: rgb(255, 111, 97);
+            margin-left: 7px;
         }
+    }
+    & small {
+        font-size: 16px;
+        margin-left: 2px;
+        font-weight: bold;
     }
 `;
 const DeliveryBox = styled.div`
@@ -180,38 +195,6 @@ text-align: right;
         margin-left: 2px;
     }
 }
-`;
-
-const CountBox = styled.div`
-    display: flex;
-    width: 100%;
-    justify-content: flex-end;
-    align-items: center;
-
-    & button {
-        width: 28px;
-        height: 28px;
-        padding: 0;
-        margin: 0 10px;
-        border: 1px solid rgb(236, 236, 236);
-        cursor: pointer;
-        overflow: visible;
-        background: rgb(255, 255, 255);
-        outline: none;
-    }
-`;
-const TotalPrice = styled.div`
-    padding: 16px 0;
-    margin-top: 150px;
-    text-align: right;
-    & span {
-        font-size: 14px;
-        & strong {
-            font-size: 22px;
-            color: rgb(255, 111, 97);
-            margin-left: 7px;
-        }
-    }
 `;
 const ButtonBox = styled.div`
     display: flex;
