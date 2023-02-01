@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper.min.css";
 import "swiper/components/navigation/navigation.min.css";
 import SwiperCore, { Navigation } from "swiper";
 import Product from "./Product";
-import axios from "axios";
 
 function ItemSwiper(props) {
   const products = props.products;

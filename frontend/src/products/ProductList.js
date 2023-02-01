@@ -9,13 +9,28 @@ import ItemSwiper from "./ItemSwiper";
 
 function ProductList() {
   const [ products, setProducts ] = useState([]);
+  const [ totals, setTotals ] = useState([]);
+  const [ simusers, setSimusers ] = useState([]);
 
   useEffect(() => {
     const controller = new AbortController()
     axios.get("http://localhost:8000", {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
+      console.log(data);
       setProducts(data);
+    })
+    .catch( error => console.log(error) );
+    axios.get(`http://localhost:8000`, {signal:controller.signal})      
+    .then( response => response.data)
+    .then( data => {
+      setTotals(data);
+    })
+    .catch( error => console.log(error) );
+    axios.get("http://localhost:8000", {signal:controller.signal})      
+    .then( response => response.data)
+    .then( data => {
+      setSimusers(data);
     })
     .catch( error => console.log(error) );
     
@@ -33,6 +48,18 @@ function ProductList() {
     .then( response => response.data )
     .then( data => {
       setProducts(data);
+    })
+    .catch( error => console.log(error) );
+    axios.post(`http://localhost:8000/filter?minp=${minprice}&maxp=${maxprice}&category=${category}`, [style])
+    .then( response => response.data )
+    .then( data => {
+      setTotals(data);
+    })
+    .catch( error => console.log(error) );
+    axios.post(`http://localhost:8000/filter?minp=${minprice}&maxp=${maxprice}&category=${category}`, [style])
+    .then( response => response.data )
+    .then( data => {
+      setSimusers(data);
     })
     .catch( error => console.log(error) );
   }
@@ -118,11 +145,11 @@ function ProductList() {
             <br/>
             <h2>내가 찾는 핸드폰</h2>
             <br/>
-            <ItemSwiper category="2" products={ products }></ItemSwiper>
+            <ItemSwiper category="2" products={ totals }></ItemSwiper>
             <br/>
             <h2>유사한 유저가 구매한 물품</h2>
             <br/>
-            <ItemSwiper category="3" products={ products }></ItemSwiper>
+            <ItemSwiper category="3" products={ simusers }></ItemSwiper>
             <br/>
           </div>
         </div>

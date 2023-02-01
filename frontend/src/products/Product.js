@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import axios from "axios";
-
+import StarRate from "./StarRate";
 
 function Product(props) {
   var [clicked, setClicked] = useState(false);
@@ -29,13 +29,14 @@ function Product(props) {
   for(var i=0; i<star-1; i++) {
     stars += "★";
   }
-  for(var j=0; j<5-star; j++) {
+  const rest = 5 - stars.length
+  for(var j=0; j<rest; j++) {
     stars += "☆";
   }
 
   return (
       <div className={"card shadow-sm card" + category}>
-        <a href={ "#/detail/" + id } className="link" target="blank">
+        <a href={ "#/detail/" + id } className="link" target="_blank">
           <img
             className="card-img-top bg-dark cover"
             height="200"
@@ -50,8 +51,9 @@ function Product(props) {
           </h5>
           <p className="card-text text-center text-muted mb-0 price">{ price }</p>
           <p className="card-text text-center text-muted mb-0 star">{ stars }</p>
+          <StarRate star={ star } id={ id }/>
           <div className="d-grid d-block text-center">
-              <FontAwesomeIcon icon={["far", "heart"]} id={"like"+id} onClick={handleClick} className={"like"}/>
+              <FontAwesomeIcon icon={["far", "heart"]} id={ `like${id}`} onClick={ handleClick } className={"like"}/>
           </div>
         </div>
       </div>

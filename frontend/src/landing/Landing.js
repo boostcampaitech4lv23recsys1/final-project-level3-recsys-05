@@ -11,21 +11,12 @@ function Landing() {
       <Banner />
       <div className="d-flex flex-column bg-white py-4">
         <p className="text-center px-5">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          회원님의 구매 이력을 바탕으로 물품을 추천하는 @@ 서비스 입니다.
         </p>
         <div className="d-flex justify-content-center">
           <Link to="/products" className="btn btn-primary" replace>
-            Browse products
+            입장하기
           </Link>
-        </div>
-      </div>
-      <h2 className="text-muted text-center mt-4 mb-3">New Arrival</h2>
-      <div className="container pb-5 px-lg-5">
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 px-md-5">
-          {Array.from({ length: 6 }, (_, i) => {
-            return <FeatureProduct key={i} />;
-          })}
         </div>
       </div>
       <div className="d-flex flex-column bg-white py-4">

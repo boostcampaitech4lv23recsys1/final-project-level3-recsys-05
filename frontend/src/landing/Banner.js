@@ -31,8 +31,8 @@ function BannerImage(props) {
         />
       </div>
       <div className="carousel-caption d-none d-lg-block">
-        <h5>Banner Header</h5>
-        <p>Some representative placeholder content for the banner.</p>
+        <h5>인테리어가 힘드십니까??</h5>
+        <p>그런 분들을 위한 서비스가 있습니다.</p>
       </div>
     </div>
   );
@@ -48,13 +48,9 @@ function Banner() {
     >
       <div className="carousel-indicators">
         <BannerIncidator index="0" active={true} />
-        <BannerIncidator index="1" />
-        <BannerIncidator index="2" />
       </div>
       <div className="carousel-inner">
         <BannerImage image={BannerZero} active={true} />
-        <BannerImage image={BannerOne} />
-        <BannerImage image={BannerTwo} />
       </div>
     </div>
   );
