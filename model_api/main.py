@@ -128,6 +128,7 @@ def test():
 def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
     text = '\n'.join(data.loc[(data['item_id'] == item_id) & (data['split'] == split), 'review'].tolist())
     if text:
+        print(text)
         okt = Okt()
         nouns = okt.nouns(text)
         c = Counter(nouns)
