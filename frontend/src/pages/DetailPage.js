@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ItemSwiper from '../products/ItemSwiper';
 import axios from 'axios';
+import StarRate from '../products/StarRate';
 import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -40,19 +41,19 @@ function Detail() {
         axios.get('http://localhost:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
-            setCloud(data.img_main);
+            setCloud(data.image_url);
         })
         .catch( error => console.log(error) );
-        axios.get(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
-        .then(response => response.data)
-        .then(data => {
-            console.log(data);
-            setSimilar(data);
-        })
-        .catch( error => console.log(error) );
-        return () => {
-        controller.abort();
-        }
+        // axios.get(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
+        // .then(response => response.data)
+        // .then(data => {
+        //     console.log(data);
+        //     setSimilar(data);
+        // })
+        // .catch( error => console.log(error) );
+        // return () => {
+        // controller.abort();
+        // }
     }, []);
     
     return (
@@ -61,81 +62,44 @@ function Detail() {
                 <Container>
                     <ItemBox>
                         <ImgBox>
-                            <img src={product.img_main}/>
+                            <img src={product.image_url}/>
                         </ImgBox>
                         <ItemInfoBox>
                             <InfoBox>
-                                <h3>{product.title}</h3>
-                                <p>{product.brand}</p>
+                                <small>{product.brand}</small>
+                                <h1>{product.title}</h1>
+                                <StarRate star = {product.review_avg} />
+                                <div style={{"margin-top": "13px"}}>{product.wish_count} 명이 찜 했어요!</div>
+                                <hr></hr>
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
-                                {
-                                    [product.review_avg].map((star) => {                                      
-                                        var stars = ""
-                                        for(var i=0; i<star-1; i++) {
-                                            stars += "★";
-                                        }
-                                        const rest = 5 - stars.length
-                                        for(var j=0; j<rest; j++) {
-                                            stars += "☆";
-                                        }
-                                        return (
-                                            <div>{ stars }</div>
-                                        )
-                                    })
-                                }
+
+
+                                
                                 <PriceBox>
                                     <span>
-                                        {product.selling_price}
+                                        {[product.selling_price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         <small>원</small>
                                     </span>
-                                    <CountBox>
-                                        <button
-                                            onClick={() => {
-                                                if (count < 2) {
-                                                    return;
-                                                }
-                                                setCount(count - 1);
-                                            }}
-                                        >
-                                            -
-                                        </button>
-                                        <div>{count}</div>
-                                        <button
-                                            onClick={() => {
-                                                setCount(count + 1);
-                                            }}
-                                        >
-                                            +
-                                        </button>
-                                    </CountBox>
                                 </PriceBox>
-                                    <div>{ `운송비 : ${product.delivery_fee}원` }</div>
-                                    <div>{ `${product.delivery_fee_free_threshold}원 이상 구매 시 운송 무료` }</div>
-                                    {
-                                        [product.is_sold_out].map((soldout) => {
-                                            if(soldout) {
-                                                return (
-                                                    <div>품절</div>
-                                                )
-                                            } else {
-                                                return (
-                                                    <div>판매중</div>
-                                                )
-                                            }
-                                        })
-                                    }
+                                <DeliveryBox>
+                                    <span>
+                                        <small> + 배송비 </small>
+                                        {[product.delivery_fee].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                        <small>원</small>
+                                    </span>
+                                </DeliveryBox>
                                 <TotalPrice>
                                     <span>
-                                        합계 <strong>{product.selling_price * count} 원</strong>
+                                    <span>배송비 포함 <strong>{(product.selling_price + product.delivery_fee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong>원</span>
                                     </span>
                                 </TotalPrice>
                                 <ButtonBox>
                                     <CartBtn>
                                         <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
                                     </CartBtn>
-                                    <BuyBtn><a href={`https://ohou.se/productions/${item_id}/selling?affect_type=StoreHome&affect_id=`} target='_blank'>오늘의집</a></BuyBtn>
+                                    <BuyBtn onClick={() => {window.open('https://ohou.se/productions/' + item_id)}}>오늘의집에서 보기</BuyBtn>
                                 </ButtonBox>
                             </InfoBox>
                         </ItemInfoBox>
@@ -149,6 +113,8 @@ function Detail() {
         </>
     )
 }
+
+const alignRight = styled.div
 
 const Container = styled.div`
     margin: 0 auto;
@@ -164,11 +130,11 @@ const ItemBox = styled.div`
 `;
 
 const ImgBox = styled.div`
-    min-width: 609px;
+    min-width: 500px;
     cursor: default;
     & img {
-        width: 609px;
-        height: 407px;
+        width: 500px;
+        height: 500px;
         min-height: 230px;
         border: none;
         vertical-align: middle;
@@ -195,19 +161,20 @@ const InfoBox = styled.div`
     }
 `;
 const PriceBox = styled.div`
-    margin-top: 40px;
-    display: flex;
-    & span {
-        font-size: 24px;
-        line-height: 24px;
+margin-top: 60px;
+display: flex;
+text-align: right;
+& span {
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: bold;
+    width: 100%;
+    & small {
+        font-size: 14px;
+        margin-left: 2px;
         font-weight: bold;
-        width: 100%;
-        & small {
-            font-size: 14px;
-            margin-left: 2px;
-            font-weight: bold;
-        }
     }
+}
 `;
 const CountBox = styled.div`
     display: flex;
@@ -227,9 +194,11 @@ const CountBox = styled.div`
         outline: none;
     }
 `;
+const StarBox = styled.div`
+    font-color: rgb(255, 111, 97)
+`;
 const TotalPrice = styled.div`
     padding: 16px 0;
-    margin-top: 150px;
     text-align: right;
     & span {
         font-size: 14px;
@@ -239,6 +208,25 @@ const TotalPrice = styled.div`
             margin-left: 7px;
         }
     }
+    & small {
+        font-size: 16px;
+        margin-left: 2px;
+        font-weight: bold;
+    }
+`;
+const DeliveryBox = styled.div`
+display: flex;
+text-align: right;
+& span {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: bold;
+    width: 100%;
+    & small {
+        font-size: 14px;
+        margin-left: 2px;
+    }
+}
 `;
 const ButtonBox = styled.div`
     display: flex;
