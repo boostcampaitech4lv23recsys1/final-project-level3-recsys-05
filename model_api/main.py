@@ -24,6 +24,12 @@ from PIL import Image
 sys.path.append('/opt/ml/input/final-project-level3-recsys-05/RecBole/')
 from recbole.quick_start import load_data_and_model
 
+from pyfiglet import Figlet
+from termcolor import colored
+
+f = Figlet(font="slant")
+print(colored(f.renderText('For Better Life'), 'green'))
+
 
 LIMIT = 10000000000
 app = FastAPI()
@@ -67,6 +73,9 @@ item_id2token = dataset.field2id_token[config['ITEM_ID_FIELD']]
 token2user_id = {id: i for i, id in enumerate(user_id2token)}
 token2item_id = {id: i for i, id in enumerate(item_id2token)}
 
+user2vec = {v:i for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+vec2user = {i:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+
 class Filters(BaseModel):
     price_s : Optional[int] = 0
     price_e : Optional[int] = LIMIT
@@ -86,21 +95,18 @@ def from_image_to_bytes(img):
     decoded = encoded.decode('ascii')
     return decoded
 
-def get_item_info(df, filters=None, k=None):
-    if filters and k:
+def get_item_info(df, filters=None):
+    if filters:
         df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
                     (df['category0'].isin(filters.category))]
-        indices = df_['item_id'].tolist()
-        if len(indices) >= k:
-            selected_items = random.sample(indices, k)
-        else: selected_items = indices
-        df_ = df_.loc[df_['item_id'].isin(selected_items)]
     else: df_ = df
 
     item_ids = df_['item_id'].tolist()
     img_urls = df_['img_main'].tolist()
     original_prices = df_['original_price'].tolist()
     selling_prices = df_['selling_price'].tolist()
+    star_avgs = df_['review_avg'].tolist()
+    brands = df_['brand'].tolist()
     titles = df_['title']
     
     pattern1 = r'\([^)]*\)'
@@ -109,14 +115,18 @@ def get_item_info(df, filters=None, k=None):
     titles = titles.apply(lambda x: re.sub(pattern2, '', x))
     titles = titles.tolist()
 
-    result = defaultdict(list)
-    for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles)):
-        a, b, c, d, e = val
-        result[idx].append(a)
-        result[idx].append(b)
-        result[idx].append(c)
-        result[idx].append(d)
-        result[idx].append(e)
+    result = []
+    for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles, star_avgs, brands)):
+        a, b, c, d, e, f, g = val
+        tmp = defaultdict(int)
+        tmp['item_ids'] = a
+        tmp['img_urls'] = b
+        tmp['original_prices'] = c
+        tmp['selling_prices'] = d
+        tmp['titles'] = e
+        tmp['star_avgs'] = f
+        tmp['brands'] = g
+        result.append(tmp)
 
     return result
 
@@ -152,7 +162,7 @@ def get_normal_recommendation(filters : Filters, k : int):
     selected_items = random.sample(random_items, k)
     recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
 
-    return get_item_info(recommend, filters, k)
+    return get_item_info(recommend, filters)
 
 @app.get('/recommend/similar/item', description='get simlilar item')
 def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
@@ -163,7 +173,6 @@ def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
     index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
 
     result = product_si[product_si['item_id'].isin(index)]
-    # item_info = get_item_info(result)
 
     return get_item_info(result)
 
@@ -172,9 +181,14 @@ def get_similar_user(user_id: int = Query(None), top_k: int = Query(None)):
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
     ann.load('model/annoy.ann')
-    recommend = ann.get_nns_by_item(0, n=top_k)
+    recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k)
+    recommend = [vec2user[rec] for rec in recommend]
 
-    data2.loc[data2['user_id'].isin(recommend)]
+    result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
+    indices = random.sample(result, top_k)
+    result = product_si.loc[product_si['item_id'].isin(indices)]
+
+    return get_item_info(result)
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
 def rec_topk(input_list: List[int], top_k: int):
@@ -208,7 +222,7 @@ def rec_topk(input_list: List[int], top_k: int):
     output_list = []
     for item in pred_list[0]:
         output_list.append(int(item_id2token[item]))
-
+    
     result = get_item_info(product_si.loc[product_si['item_id'].isin(output_list)])
     return result
 
