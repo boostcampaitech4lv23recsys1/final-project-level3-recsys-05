@@ -8,11 +8,14 @@ import Join from "./pages/Register"
 import History from './pages/History'
 import Mypage from "./pages/Mypage";
 import Detail from './pages/DetailPage'
+import { useState, useEffect } from "react";
 
 
 function App() {
+  
+
   return (
-    <Template>
+    <Template token={logined}>
       <Switch>
         <Route path="/products" exact>
           <ProductList />

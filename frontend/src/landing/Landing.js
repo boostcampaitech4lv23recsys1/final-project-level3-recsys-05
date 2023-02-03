@@ -14,8 +14,8 @@ function Landing() {
           회원님의 구매 이력을 바탕으로 물품을 추천하는 @@ 서비스 입니다.
         </p>
         <div className="d-flex justify-content-center">
-          <Link to="/products" className="btn btn-primary" replace>
-            입장하기
+          <Link to="/login" className="btn btn-primary" replace>
+            로그인
           </Link>
         </div>
       </div>

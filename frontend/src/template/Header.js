@@ -1,11 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-function Header() {
+function Header({token}) {
 
   const [openedDrawer, setOpenedDrawer] = useState(false)
-
 
   function toggleDrawer() {
     setOpenedDrawer(!openedDrawer);
@@ -17,14 +16,16 @@ function Header() {
     }
   }
 
+  const [logined, setLogined] = useState(null)
+  useEffect(() => {
+    const localToken = localStorage.getItem("token");
+    setLogined(localToken);
+  }, []);
+
   return (
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
         <div className="container-fluid">
-          <button className="navbar-toggler p-0 border-0 ms-3" type="button" onClick={toggleDrawer}>
-            <span className="navbar-toggler-icon"></span>
-          </button>
-            
           <Link className="navbar-brand" to="/" onClick={changeNav}>
             <FontAwesomeIcon
               icon={["fab", "bootstrap"]}
@@ -42,10 +43,6 @@ function Header() {
                 </Link>
               </li>
             </ul>
-            <button type="button" className="btn btn-outline-dark me-3 d-none d-lg-inline">
-              <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
-              <span className="ms-3 badge rounded-pill bg-dark">0</span>
-            </button>
             <ul className="navbar-nav mb-2 mb-lg-0">
               <li className="nav-item dropdown">
                 <a
@@ -63,11 +60,18 @@ function Header() {
                   className="dropdown-menu dropdown-menu-end"
                   aria-labelledby="userDropdown"
                 >
-                  <li>
-                    <Link to="/login" className="dropdown-item" onClick={changeNav}>
-                      Login
-                    </Link>
-                  </li>
+                      {token ? 
+                      (<li>
+                        <Link to="/login" className="dropdown-item" onClick={changeNav}>
+                          Login
+                        </Link>
+                      </li>) :
+                      (<li>
+                        <Link to="/mypage" className="dropdown-item" onClick={changeNav}>
+                          My Page
+                        </Link>
+                      </li>)
+                      }
                   <li>
                     <Link to="/register" className="dropdown-item" onClick={changeNav}>
                       Sign Up

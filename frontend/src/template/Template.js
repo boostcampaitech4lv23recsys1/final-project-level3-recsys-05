@@ -5,7 +5,7 @@ import Footer from "./Footer";
 function Template(props) {
   return (
     <>
-      <Header />
+      <Header/>
       <Content>{props.children}</Content>
       <Footer />
     </>

@@ -3,37 +3,33 @@ import Button from "react-bootstrap/Button";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Logo from '../landing/logo.png'
-import { useState, useCallback } from 'react'
+import Logo from '../landing/logo.png';
+import { Link } from 'react-router-dom';
+import axios, { AxiosInstance } from 'axios';
+import { useState, useCallback } from 'react';
 
 function Login(){
     const sessionStorage = window.sessionStorage;
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
-    function onSubmit(e) {
-        e.preventDefault();
 
-        fetch('http://34.64.87.78:8000/login', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
-        }).then((res) => {
-            if(res.ok) {
-                console.log(res.statusText)
-                sessionStorage.setItem("loginEmail", email)
-                window.open(`#/products`, '_self')
-            }
-            else {
-                alert("아이디 혹은 비밀번호가 틀렸습니다.")
-            }
-        });
-    }
+    const onSubmit = async (event) => {
+        event.preventDefault();
+        try {
+          const response = await axios.post("http://34.64.87.78:8000/login", {
+            email: email,
+            password: password,
+          });
+          console.log(response.data)
+          localStorage.setItem("token", response.data);
+          console.log(localStorage.getItem("token"))
+          window.location.replace('/#/products');
+        } catch (e) {
+          alert("ID 혹은 PASSWORD가 틀렸습니다.");
+        }
+      };
+
 
     const onChangeEmail = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const emailCurrent = e.target.value
@@ -69,6 +65,9 @@ function Login(){
                         </Button>
                     </div>
                 </Form>
+                <div className="mt-3" style={{textAlign: "center", fontSize: "8px"}}>
+                    <Link to="/register">회원가입하기</Link>
+                </div>
             </Container>
         </div>
     );

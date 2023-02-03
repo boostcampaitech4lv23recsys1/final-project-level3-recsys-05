@@ -14,6 +14,13 @@ function ProductList() {
 
   useEffect(() => {
     const controller = new AbortController()
+
+    const logintoken = localStorage.getItem("token")
+    // const loginid = jwt.verify(logintoken, "abcret-key")
+    console.log(logintoken)
+
+    // wish list gcp 서버에서 받아오기
+
     axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", [201149], {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
