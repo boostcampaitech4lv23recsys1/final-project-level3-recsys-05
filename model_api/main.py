@@ -10,7 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from fastapi import FastAPI
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Body
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List
@@ -48,6 +48,8 @@ data = pd.read_csv("data/for_word_cloud.csv", lineterminator='\n')
 data2 = pd.read_csv("data/final_v2.inter", lineterminator='\n')
 product_si = pd.read_csv("data/side_info.csv")
 
+DEFAULT_CATEGORY = product_si['category0'].unique().tolist()
+
 icon = Image.open('data/house.png')
 mask = Image.new("RGB", icon.size, (255,255,255))
 mask.paste(icon,icon)
@@ -79,7 +81,7 @@ vec2user = {i:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
 class Filters(BaseModel):
     price_s : Optional[int] = 0
     price_e : Optional[int] = LIMIT
-    category : List[str] = product_si['category0'].unique().tolist()
+    category : List[str] = DEFAULT_CATEGORY#product_si['category0'].unique().tolist()
 
 def from_image_to_bytes(img):
     """
@@ -95,11 +97,13 @@ def from_image_to_bytes(img):
     decoded = encoded.decode('ascii')
     return decoded
 
-def get_item_info(df, filters=None):
+def get_item_info(df, filters=None, k=10):
     if filters:
         df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
                     (df['category0'].isin(filters.category))]
     else: df_ = df
+    selected_items = random.sample(df_['item_id'].tolist(), k)
+    df_ = df_.loc[df_['item_id'].isin(selected_items)]
 
     item_ids = df_['item_id'].tolist()
     img_urls = df_['img_main'].tolist()
@@ -159,25 +163,28 @@ def get_normal_recommendation(filters : Filters, k : int):
     random_items = list(set(star_avg_items).intersection(set(basic_items)))
     print(filters)
     print(filters.price_s, filters.price_e, filters.category)
-    selected_items = random.sample(random_items, k)
-    recommend = product_si.loc[product_si['item_id'].isin(selected_items)]
+    recommend = product_si.loc[product_si['item_id'].isin(random_items)]
 
-    return get_item_info(recommend, filters)
+    return get_item_info(recommend, filters, k)
 
-@app.get('/recommend/similar/item', description='get simlilar item')
-def get_similar_item(item_id: int = Query(None), top_k: int = Query(None)):
+@app.post('/recommend/similar/item', description='get simlilar item')
+def get_similar_item(item_id: int = Query(None), top_k: int = Query(None), filters : Optional[Filters] = Body(None)):
     from gensim.models import Word2Vec
 
     model = Word2Vec.load('model/item2vec.model')
     item_vectors = model.wv
-    index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
+    if (not filters.price_s and filters.price_e != LIMIT and filters.category != DEFAULT_CATEGORY):
+        index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
+    else:
+        index = [i for i, _ in item_vectors.most_similar(item_id, topn=max(top_k**2, 200))]
 
     result = product_si[product_si['item_id'].isin(index)]
+    if filters:
+        return get_item_info(result, filters, top_k)
+    return get_item_info(result, top_k)
 
-    return get_item_info(result)
-
-@app.get('/recommend/similar/user', description='get similar user')
-def get_similar_user(user_id: int = Query(None), top_k: int = Query(None)):
+@app.post('/recommend/similar/user', description='get similar user')
+def get_similar_user(user_id: int = Query(None), top_k: int = Query(None), filters : Optional[Filters] = Body(None)):
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
     ann.load('model/annoy.ann')
@@ -185,13 +192,13 @@ def get_similar_user(user_id: int = Query(None), top_k: int = Query(None)):
     recommend = [vec2user[rec] for rec in recommend]
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
-    indices = random.sample(result, top_k)
-    result = product_si.loc[product_si['item_id'].isin(indices)]
-
-    return get_item_info(result)
+    recommend = product_si.loc[product_si['item_id'].isin(result)]
+    if filters:
+        return get_item_info(recommend, filters, top_k)
+    return get_item_info(recommend, top_k)
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
-def rec_topk(input_list: List[int], top_k: int):
+def rec_topk(input_list: List[int], top_k: int, filters : Optional[Filters] = Body(None)):
     
     input_list = [token2item_id[str(i)] for i in input_list]
 
@@ -210,8 +217,9 @@ def rec_topk(input_list: List[int], top_k: int):
     # 입력한 아이템은 추천되지 않도록
     rating_pred[:, input_list] = 0
 
+    split = max(top_k**2, 100)
     # sort & topk
-    ind = np.argpartition(rating_pred, -top_k)[:, -top_k:]
+    ind = np.argpartition(rating_pred, -split)[:, -split:]
     arr_ind = rating_pred[np.arange(len(rating_pred))[:, None], ind]
     arr_ind_argsort = np.argsort(arr_ind)[np.arange(len(rating_pred)), ::-1]
 
@@ -222,11 +230,12 @@ def rec_topk(input_list: List[int], top_k: int):
     output_list = []
     for item in pred_list[0]:
         output_list.append(int(item_id2token[item]))
-    
-    result = get_item_info(product_si.loc[product_si['item_id'].isin(output_list)])
-    return result
+    result = product_si.loc[product_si['item_id'].isin(output_list)]
+    if filters:
+        return get_item_info(result, filters, top_k)
+    return get_item_info(result, top_k)
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=30002, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=30003)#, reload=True)
 
