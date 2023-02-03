@@ -12,10 +12,14 @@ import { useState, useEffect } from "react";
 
 
 function App() {
-  
+  const [logined, setLogined] = useState(null)
+  useEffect(() => {
+    const localToken = localStorage.getItem("token");
+    setLogined(localToken);
+  }, []);
 
   return (
-    <Template token={logined}>
+    <Template logined={logined}>
       <Switch>
         <Route path="/products" exact>
           <ProductList />

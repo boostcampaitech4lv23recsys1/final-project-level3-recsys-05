@@ -1,10 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-function Header({token}) {
+function Header(props) {
 
   const [openedDrawer, setOpenedDrawer] = useState(false)
+  const history = useHistory();
 
   function toggleDrawer() {
     setOpenedDrawer(!openedDrawer);
@@ -16,11 +17,11 @@ function Header({token}) {
     }
   }
 
-  const [logined, setLogined] = useState(null)
-  useEffect(() => {
-    const localToken = localStorage.getItem("token");
-    setLogined(localToken);
-  }, []);
+  function logout() {
+    localStorage.clear()
+    history.push('/');
+    window.location.reload();
+  }
 
   return (
     <header>
@@ -60,23 +61,30 @@ function Header({token}) {
                   className="dropdown-menu dropdown-menu-end"
                   aria-labelledby="userDropdown"
                 >
-                      {token ? 
+                    {props.logined==null ? 
                       (<li>
                         <Link to="/login" className="dropdown-item" onClick={changeNav}>
                           Login
                         </Link>
                       </li>) :
                       (<li>
-                        <Link to="/mypage" className="dropdown-item" onClick={changeNav}>
+                        <Link to={`/mypage/${localStorage.getItem("token")}`} className="dropdown-item" onClick={changeNav}>
                           My Page
                         </Link>
                       </li>)
-                      }
-                  <li>
-                    <Link to="/register" className="dropdown-item" onClick={changeNav}>
-                      Sign Up
-                    </Link>
-                  </li>
+                    }
+                    {props.logined==null ?
+                      (<li>
+                        <Link to="/register" className="dropdown-item" onClick={changeNav}>
+                          Sign Up
+                        </Link>
+                      </li>) :
+                      (<li>
+                        <Link to="/" className="dropdown-item" onClick={logout}>
+                          Logout
+                        </Link>
+                      </li>)
+                    }
                 </ul>
               </li>
 

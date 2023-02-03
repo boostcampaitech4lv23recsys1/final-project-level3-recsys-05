@@ -11,13 +11,18 @@ function ProductList() {
   const [ products, setProducts ] = useState([]);
   const [ totals, setTotals ] = useState([]);
   const [ simusers, setSimusers ] = useState([]);
+  const [ wishProducts, setWishProducts ] = useState([]);
 
   useEffect(() => {
     const controller = new AbortController()
 
     const logintoken = localStorage.getItem("token")
-    // const loginid = jwt.verify(logintoken, "abcret-key")
     console.log(logintoken)
+
+    axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
+    .then(response => {
+      console.log(response.data)
+    })
 
     // wish list gcp 서버에서 받아오기
 

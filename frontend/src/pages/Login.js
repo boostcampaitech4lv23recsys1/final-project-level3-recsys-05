@@ -4,7 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Logo from '../landing/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import axios, { AxiosInstance } from 'axios';
 import { useState, useCallback } from 'react';
 
@@ -12,7 +12,7 @@ function Login(){
     const sessionStorage = window.sessionStorage;
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-
+    const history = useHistory()
 
     const onSubmit = async (event) => {
         event.preventDefault();
@@ -24,7 +24,8 @@ function Login(){
           console.log(response.data)
           localStorage.setItem("token", response.data);
           console.log(localStorage.getItem("token"))
-          window.location.replace('/#/products');
+          history.push('/products');
+          window.location.reload();
         } catch (e) {
           alert("ID 혹은 PASSWORD가 틀렸습니다.");
         }

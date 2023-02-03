@@ -38,7 +38,7 @@ function History() {
         </div>
       </div>
       {/* more button */}
-      <div style={{alignItems: 'center', justifyContent: 'center'}}>
+      <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}>
       <a class="btn btn-secondary btn" style={{backgroundColor: "red"}} role="button" onClick={() => {
         axios.get('http://34.64.87.78:8000/abcd').then((resp) => {
           console.log(resp.data)

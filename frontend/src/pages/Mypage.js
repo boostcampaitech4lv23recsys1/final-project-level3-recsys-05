@@ -21,8 +21,8 @@ function Mypage() {
     <div>	
       {/* jumbotron */}	
       <div class="bg-light p-5 rounded-lg">	
-        <h1 class="display-4">마이페이지입니다</h1>	
-        <p class="lead">반가워요</p>	
+        <h1 class="display-4">마이페이지</h1>	
+        {/* <p class="lead">반가워요</p>	 */}
         <hr class="my-4" />	
       </div>	
       {/* card contents */}	
@@ -36,9 +36,11 @@ function Mypage() {
         </div>
       </div>
       {/* more button */}
-      <a class="btn btn-secondary btn" role="button" onClick={() => {
-        setDisplayProducts(displayProducts+3)
-      }}>더보기</a>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <a class="btn btn-secondary btn" role="button" onClick={() => {
+          setDisplayProducts(displayProducts+3)
+        }}>더보기</a>
+      </div>
     </div>	
 
   );	
