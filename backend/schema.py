@@ -9,3 +9,7 @@ class UserBase(BaseModel):
 class LoginBase(BaseModel):
     email: str
     password: str
+
+class WishBase(BaseModel):
+    itemid: int
+    userid: int

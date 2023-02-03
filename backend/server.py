@@ -5,7 +5,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.sql import text
+from datetime import datetime, timedelta
 from typing import List
+import jwt
 import psycopg2
 import schema
 import model
@@ -55,29 +57,11 @@ def insert_register(user: schema.UserBase, session: Session = Depends(get_db)):
         session.add(db_user)
         session.commit()
         session.refresh(db_user)
-        return {"response": "ok"}
+        uuu = session.query(model.Users).filter(model.Users.email == user.email).first()
+        return {"user_id": uuu.user_id}
     else:
         raise HTTPException(status_code=404, detail="Email already exists")
 
-
-# @app.post("/register")
-# def insert_register(user: schema.User):
-#     insert_register_query = f"""
-#     INSERT INTO user_data
-#     (email, password, username, ohouse)
-#     VALUES (
-#         '{user.email}',
-#         '{user.password}',
-#         '{user.username}',
-#         {int(user.ohouse)}
-#     );
-#     """
-
-#     with db_connect.cursor() as cur:
-#         cur.execute(insert_register_query)
-#         db_connect.commit()
-
-#     return {"insertion": "ok"}
 
 
 @app.get("/abcd")
@@ -104,13 +88,45 @@ def return_wish_info(userid: int, session: Session = Depends(get_db)):
 
     return iteminfos
 
-@app.post("/wish")
-def insert_wish(wishitem: int, session: Session = Depends(get_db)):
-    pass
+@app.get("/wishes/{userid}")
+def return_wish_info(userid: int, session: Session = Depends(get_db)):
+    wishitems = session.query(model.WishItems).filter(model.WishItems.user_id == userid).all()
+    itemnos = []
+    for item in wishitems:
+        itemnos.append(item.item_id)
+
+    return itemnos
+
+@app.get("/wishing/{userid}/{itemid}")
+def insert_wish(userid: int, itemid: int, session: Session = Depends(get_db)):
+    theitem = session.query(model.WishItems).filter(model.WishItems.item_id == itemid and model.WishItems.user_id == userid)
+    if theitem.first() is None:
+        db_wish = model.WishItems(
+            item_id = itemid,
+            user_id = userid
+        )
+        session.add(db_wish)
+        session.commit()
+        session.refresh(db_wish)
+        return {"response": "added"}
+    else:
+        return {"response": "already"}
+
+@app.get("/unwishing/{userid}/{itemid}")
+def insert_wish(userid: int, itemid: int, session: Session = Depends(get_db)):
+    theitem = session.query(model.WishItems).filter(model.WishItems.item_id == itemid and model.WishItems.user_id == userid)
+    if theitem.first() is None:
+        return {"response": "already"}
+    else:
+        theitem.delete()
+        session.commit()
+        return {"response": "deleted"}
+
 
 @app.post("/login")
-def logingo(logininfo: schema.LoginBase, session: Session = Depends(get_db)):
-    theuser = session.query(model.Users).filter(model.Users.email == logininfo.email and model.Users.password == logininfo.password).first()
+def logingo(info: schema.LoginBase, session: Session = Depends(get_db)):
+    theuser = session.query(model.Users).filter(model.Users.email == info.email and model.Users.password == info.password).first()
+
     if theuser is None:
         raise HTTPException(status_code=404, detail="No user in db")
     else:

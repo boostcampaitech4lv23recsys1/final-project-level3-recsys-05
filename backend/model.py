@@ -33,7 +33,7 @@ class Users(Base):
 class WishItems(Base):
     __tablename__ = "wish_data"
 
-    wish_id = Column(Integer, primary_key=True)
+    wish_id = Column(Integer, Sequence('seq_wish'), primary_key=True)
     user_id = Column(Integer)
     item_id = Column(Integer)
     

@@ -11,7 +11,8 @@ RUN pip install -U pip &&\
     pip install fastapi\
     pip install uvicorn\
     pip install pydantic\
-    pip install sqlalchemy
+    pip install sqlalchemy\
+    pip install pyjwt
 
 COPY server.py server.py
 COPY schema.py schema.py
