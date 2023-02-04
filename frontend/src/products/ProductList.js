@@ -13,21 +13,40 @@ function ProductList() {
   const [ simusers, setSimusers ] = useState([]);
   const [ wishProducts, setWishProducts ] = useState([]);
 
-  useEffect(() => {
-    const controller = new AbortController()
-    axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10", {signal:controller.signal})      
+  const defaultFilter = {
+    "price_s": 0,
+    "price_e": 10000000000,
+    "category": [
+      "가구",
+      "주방용품",
+      "수납·정리",
+      "생활용품",
+      "패브릭",
+      "가전·디지털",
+      "공구·DIY",
+      "데코·식물",
+      "인테리어시공",
+      "조명",
+      "캠핑·레저",
+      "생필품",
+      "유아·아동",
+      "반려동물",
+      "식품",
+      "렌탈"]
+    }
 
-    const logintoken = localStorage.getItem("token")
-    console.log(logintoken)
+  useEffect(() => {
+    const controller = new AbortController();
+    const logintoken = localStorage.getItem("token");
 
     axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
     .then(response => {
-      console.log(response.data)
+      setWishProducts(response.data);
     })
 
     // wish list gcp 서버에서 받아오기
-
-    axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", [201149], {signal:controller.signal})      
+    
+    axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10", {'input_list':wishProducts, 'filters':defaultFilter}, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setProducts(data);
@@ -51,13 +70,10 @@ function ProductList() {
     }
   }, []);
 
-  const applyButton = document.createElement('button');
-  applyButton.setAttribute('className', "btn btn-dark apply");
-  applyButton.textContent = 'Apply';
-
   function getFilter(minprice, maxprice, category) {
     const d = {"price_s":minprice, "price_e":maxprice, "category":category}
-    axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, d)
+    console.log(wishProducts)
+    axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, {'input_list':wishProducts, 'filters':d})
     .then( response => response.data )
     .then( data => {
       setProducts(data);
@@ -69,7 +85,7 @@ function ProductList() {
       setTotals(data);
     })
     .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${11}&top_k=10`, d)
+    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${11}&top_k=10`, d, {'header':'Access-Control-Allow-Origin'})
     .then( response => response.data )
     .then( data => {
       setSimusers(data);

@@ -13,6 +13,7 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "axios": "^1.2.3",
+    "base-64": "^1.0.0",
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
     "crypto": "^1.0.1",

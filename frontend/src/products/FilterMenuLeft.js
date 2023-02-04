@@ -36,15 +36,15 @@ function FilterMenuLeft({ getFilter }) {
             { categories.map((cat,index) => {
                 return (
                   <>
-                  <button value={ cat } className='category_deactivate category_item' key={`category${index}`}onClick={ (event) => {
+                  <button value={ cat } className='deactivate category_item' key={`category${index}`}onClick={ (event) => {
                     const ca = event.target.value;
                     const click = event.target.className;
-                    if(click === 'category_activate category_item') {
+                    if(click === 'activate category_item') {
                       setCategory(category.filter(c => c !== ca));
-                      event.target.className = 'category_deactivate category_item';
+                      event.target.className = 'deactivate category_item';
                     } else {
                       setCategory([...category, ca]);
-                      event.target.className = 'category_activate category_item';
+                      event.target.className = 'activate category_item';
                     }
                   } }>{ cat }</button>
                   </>

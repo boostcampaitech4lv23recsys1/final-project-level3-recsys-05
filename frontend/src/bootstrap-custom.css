@@ -10728,11 +10728,11 @@ textarea.form-control-lg {
   margin: 0 0 0 auto;
 }
 
-.category_deactivate {
+.deactivate {
   background-color: #cacaca;
 }
 
-.category_activate {
+.activate {
   background-color: #ff6f61;
 }
 
@@ -10741,6 +10741,29 @@ textarea.form-control-lg {
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(40%, auto));
+}
+
+.filterStar {
+  display: grid;
+  width: 70%;
+  margin: auto;
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(10%, auto));
+}
+
+.starButton {
+  width: 100%;
+  border: solid 2px grey;
+  border-radius: 15px;
+}
+
+.currentStar {
+  text-align: center;
+}
+
+#cloudCon {
+  text-align: center;;
 }
 
 .category_item {

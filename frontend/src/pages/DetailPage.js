@@ -6,12 +6,13 @@ import axios from 'axios';
 import StarRate from '../products/StarRate';
 import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import base64 from 'base-64';
+import ReactDOM from 'react-dom';
 
 // 상세 제품 페이지
 function Detail() {
     const [ product, setProduct ] = useState([]);
     const [ similar, setSimilar ] = useState([]);
-    const [ cloud, setCloud ] = useState('');
     var [clicked, setClicked] = useState(false);
   
     const handleClick = () => {
@@ -28,16 +29,16 @@ function Detail() {
     };
 
     const item_id = useParams()['itemid'];
-    
+
     useEffect(() => {
-        const controller = new AbortController()
+        const controller = new AbortController();
         axios.get('http://34.64.87.78:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
             setProduct(data);
         })
         .catch( error => console.log(error) );
-        axios.get(`http://115.85.181.95:30003/recommend/similar/item?item_id=${item_id}&top_k=10`)
+        axios.post(`http://115.85.181.95:30003/recommend/similar/item?item_id=${item_id}&top_k=10`)
         .then(response => response.data)
         .then(data => {
             setSimilar(data);
@@ -45,20 +46,42 @@ function Detail() {
         .catch( error => console.log(error) );
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=1`,
-            responseType:'blob'
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${1}`,
+            // responseType:'blob'
             })
-        .then(response => {
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] } ));
-            console.log(url);
-            setCloud(url);
-            window.URL.revokeObjectURL(url);
+        .then(response => response.data)
+        .then(data => {
+            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} />
+            ReactDOM.render(<Example data={data} />, document.getElementById('cloudCon'))
         })
         .catch( error => console.log(error) );
         return () => {
         controller.abort();
         }
     }, []);
+
+    const onClickButton = (value) => {
+        const buttons = document.getElementsByClassName("starButton");
+        [0,1,2,3,4].map((i) => {
+            const button = buttons[i];
+            if(button.value == value) {
+                button.setAttribute('class', 'activate starButton');
+            } else {
+                button.setAttribute('class', 'deactivate starButton');
+            }
+        })
+        axios({            
+            method:'GET',
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${1}`,
+            // url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${value}`
+            })
+        .then(response => response.data)
+        .then(data => {
+            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} />
+            ReactDOM.render(<Example data={data} />, document.getElementById('cloudCon'))
+        })
+        .catch( error => console.log(error) );
+    }
     
     return (
         <>
@@ -101,7 +124,9 @@ function Detail() {
                                 </TotalPrice>
                                 <ButtonBox>
                                     <CartBtn>
+                                        
                                         <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
+                                        
                                     </CartBtn>
                                     <BuyBtn onClick={() => {window.open('https://ohou.se/productions/' + item_id)}}>오늘의집에서 보기</BuyBtn>
                                 </ButtonBox>
@@ -109,7 +134,23 @@ function Detail() {
                         </ItemInfoBox>
                     </ItemBox>
                     <br/>
-                    <image src={cloud} alt='wordcloud'/>
+                    <div className = 'filterStar d-flex flex-row'>
+                        {[1,2,3,4,5].map( (i) =>{
+                            if(i == "1") {
+                                return (
+                                    <button value={ i } key={'button'+i} className="activate starButton" onClick={(event) => {               
+                                        onClickButton(event.target.value);
+                                    }}>{ `${i}점` }</button>
+                                )
+                            }
+                            return (
+                                <button value={ i } key={'button'+i} className="deactivate starButton" onClick={(event) => {               
+                                    onClickButton(event.target.value);
+                                }}>{ `${i}점` }</button>
+                            )  
+                        })}
+                    </div>
+                    <div id='cloudCon'></div>
                     <br/>
                     <h3>유사한 물품</h3>
                     <br/>
