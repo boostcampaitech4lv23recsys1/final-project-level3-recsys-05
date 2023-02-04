@@ -10763,7 +10763,8 @@ textarea.form-control-lg {
 }
 
 #cloudCon {
-  text-align: center;;
+  text-align: center;
+}
 .historys {
   display: grid;	
   row-gap: 10px;

@@ -64,12 +64,10 @@ function ProductList() {
   }, []);
 
   function getFilter(minprice, maxprice, category) {
-    const d = {"price_s":minprice, "price_e":maxprice, "category":category}
-    console.log(wishProducts)
+    const d = (category.length===0 ? {"price_s":minprice, "price_e":maxprice, "category":defaultFilter.category} : {"price_s":minprice, "price_e":maxprice, "category":category})
     axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, {'input_list':wishProducts, 'filters':d})
     .then( response => response.data )
     .then( data => {
-      console.log(data);
       setProducts(data);
     })
     .catch( error => console.log(error) );
@@ -85,6 +83,7 @@ function ProductList() {
       setSimusers(data);
     })
     .catch( error => console.log(error) );
+    
   }
 
   return (

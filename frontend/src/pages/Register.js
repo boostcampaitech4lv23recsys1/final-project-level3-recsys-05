@@ -85,14 +85,12 @@ function Join(){
             setUsernameMessage('2자에서 10자 사이로 입력해 주세요')
             setIsUsername(false)
         }
-        console.log(username)
         }, [])
 
     const onChangeOhouse = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
         const usernameCurrent = e.target.value
         setOhouse(usernameCurrent)
-        console.log(ohouse)
     }, [])
 
     function onSubmit(e) {

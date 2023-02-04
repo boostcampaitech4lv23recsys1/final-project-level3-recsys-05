@@ -36,7 +36,7 @@ function History() {
     <div>	
       {/* jumbotron */}	
       <div class="bg-light p-5 rounded-lg">	
-        <h1 class="display-4">안녕하세요 Unzip입니다.</h1>	
+        <h1 class="display-4">안녕하세요 UNZYP입니다.</h1>	
         <p class="lead">선호하는 상품을 5개 이상 골라주세요!</p>	
         <hr class="my-4" />	
       </div>	
