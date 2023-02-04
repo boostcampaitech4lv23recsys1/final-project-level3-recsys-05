@@ -24,7 +24,7 @@ function Join(){
     const [isPassword, setIsPassword] = useState("")
     const [isConfirmPassword, setIsConfirmPassword] = useState("")
     const [isUsername, setIsUsername] = useState("")
-    const [numberOhouse, setNumberOhouse] = useState("")
+    const [numberOhouse, setNumberOhouse] = useState()
 
     const onChangeEmail = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const emailRegex =
@@ -85,14 +85,15 @@ function Join(){
             setUsernameMessage('2자에서 10자 사이로 입력해 주세요')
             setIsUsername(false)
         }
+        console.log(username)
         }, [])
 
     const onChangeOhouse = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
         const usernameCurrent = e.target.value
         setOhouse(usernameCurrent)
-
-        }, [])
+        console.log(ohouse)
+    }, [])
 
     function onSubmit(e) {
         e.preventDefault();

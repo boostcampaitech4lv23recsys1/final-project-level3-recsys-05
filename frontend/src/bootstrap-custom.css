@@ -10743,6 +10743,13 @@ textarea.form-control-lg {
   grid-template-columns: repeat(auto-fill, minmax(40%, auto));
 }
 
+.historys {
+  display: grid;	
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(20%, auto));
+}
+
 .category_item {
   width: 100%;
   border: solid 2px grey;

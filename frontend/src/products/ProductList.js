@@ -15,27 +15,28 @@ function ProductList() {
 
   useEffect(() => {
     const controller = new AbortController()
-    axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10", {signal:controller.signal})      
 
     const logintoken = localStorage.getItem("token")
     console.log(logintoken)
 
     axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
-    .then(response => {
-      console.log(response.data)
+    .then(resp => {
+      console.log(resp.data)
+      axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", resp.data, {signal:controller.signal})      
+      .then( response => response.data)
+      .then( data => {
+        setProducts(data);
+      })
+      .catch( error => console.log(error) )
     })
 
     // wish list gcp 서버에서 받아오기
 
-    axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", [201149], {signal:controller.signal})      
-    .then( response => response.data)
-    .then( data => {
-      setProducts(data);
-    })
-    .catch( error => console.log(error) );
+    
     axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
+      console.log(data)
       setTotals(data);
     })
     .catch( error => console.log(error) );
@@ -60,6 +61,7 @@ function ProductList() {
     axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, d)
     .then( response => response.data )
     .then( data => {
+      console.log(data);
       setProducts(data);
     })
     .catch( error => console.log(error) );
@@ -152,7 +154,7 @@ function ProductList() {
                 </div>
               </div>
             </div>
-            <h2>용욱님을 위한 추천</h2>
+            <h2>username님을 위한 추천</h2>
             <br/>
             <ItemSwiper field="1" products={ products }></ItemSwiper>
             <br/>
