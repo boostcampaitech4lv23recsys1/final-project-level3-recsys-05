@@ -63,12 +63,6 @@ def insert_register(user: schema.UserBase, session: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Email already exists")
 
 
-
-@app.get("/abcd")
-def item_lists():
-    a = [265527, 456986]
-    return a
-
 @app.get("/item/{itemid}")
 def return_item_info(itemid: int, session: Session = Depends(get_db)):
     item = session.query(model.Items).filter(model.Items.item_id == itemid).first()
@@ -122,6 +116,24 @@ def insert_wish(userid: int, itemid: int, session: Session = Depends(get_db)):
         session.commit()
         return {"response": "deleted"}
 
+@app.post("/firstwish")
+def insert_wish(wishbase: schema.FirstWish, session: Session = Depends(get_db)):
+    return wishbasae
+    for item in wishbase.itemids:
+        db_wish = model.WishItems(
+            item_id = item,
+            user_id = wishbase.userid
+        )
+        session.add(db_wish)
+        session.commit()
+        session.refresh(db_wish)
+    
+    return {"response": "ok"}
+
+@app.get("/username/{userid}")
+def get_username(userid: int, session: Session = Depends(get_db)):
+    theuser = session.query(model.Users).filter(model.Users.user_id == userid).first()
+    return theuser.username
 
 @app.post("/login")
 def logingo(info: schema.LoginBase, session: Session = Depends(get_db)):

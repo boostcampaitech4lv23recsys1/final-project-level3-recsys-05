@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class UserBase(BaseModel):
     email: str
@@ -13,3 +14,7 @@ class LoginBase(BaseModel):
 class WishBase(BaseModel):
     itemid: int
     userid: int
+
+class FirstWish(BaseModel):
+    userid: int
+    itemids: List[int]
