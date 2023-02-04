@@ -8,11 +8,18 @@ import Join from "./pages/Register"
 import History from './pages/History'
 import Mypage from "./pages/Mypage";
 import Detail from './pages/DetailPage'
+import { useState, useEffect } from "react";
 
 
 function App() {
+  const [logined, setLogined] = useState(null)
+  useEffect(() => {
+    const localToken = localStorage.getItem("token");
+    setLogined(localToken);
+  }, []);
+
   return (
-    <Template>
+    <Template logined={logined}>
       <Switch>
         <Route path="/products" exact>
           <ProductList />

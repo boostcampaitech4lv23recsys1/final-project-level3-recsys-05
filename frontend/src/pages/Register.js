@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import { useState, useCallback } from 'react'
 import { alignPropType } from "react-bootstrap/esm/types";
-import axios, { AxiosInstance } from 'axios';
+import axios from "axios";
 
 function Join(){
     const [email, setEmail] = useState("")
@@ -105,25 +105,19 @@ function Join(){
             setNumberOhouse("0")
         }
 
-        fetch('http://34.64.87.78:8000/register', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: email,
-                password: confirmPassword,
-                username: username,
-                ohouse: numberOhouse,
-            }),
-        }).then((res) => {
-            if(res.ok) {
-                console.log("ok");
-            }
-            else {
-                alert("중복 Email입니다.")
-            }
-        });
+        console.log(numberOhouse)
+
+        axios.post('http://34.64.87.78:8000/register', {
+            email: email,
+            password: confirmPassword,
+            username: username,
+            ohouse: numberOhouse,
+        }).then(res => {
+            alert("회원가입이 완료되었습니다.")
+            window.location.replace('/#/history/' + res.data.user_id);
+        }).catch(e => {
+            alert("중복된 이메일이 있습니다.")
+        })
     }
 
     return (

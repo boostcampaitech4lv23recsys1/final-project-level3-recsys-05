@@ -38,7 +38,8 @@ function History() {
         </div>
       </div>
       {/* more button */}
-      <a class="btn btn-secondary btn" role="button" onClick={() => {
+      <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}>
+      <a class="btn btn-secondary btn" style={{backgroundColor: "red"}} role="button" onClick={() => {
         axios.get('http://34.64.87.78:8000/abcd').then((resp) => {
           console.log(resp.data)
           setProducts(
@@ -55,6 +56,7 @@ function History() {
           console.log(e);
         });
       }}>제출하기</a>
+      </div>
     </div>	
   );	
 }	

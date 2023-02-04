@@ -5,7 +5,7 @@ import Footer from "./Footer";
 function Template(props) {
   return (
     <>
-      <Header />
+      <Header logined={props.logined}/>
       <Content>{props.children}</Content>
       <Footer />
     </>
