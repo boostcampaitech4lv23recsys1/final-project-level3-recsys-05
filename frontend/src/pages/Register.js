@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { alignPropType } from "react-bootstrap/esm/types";
 import axios from "axios";
 
@@ -18,13 +18,19 @@ function Join(){
     const [passwordMessage, setPasswordMessage] = useState("")
     const [confirmPasswordMessage, setConfirmPasswordMessage] = useState("")
     const [usernameMessage, setUsernameMessage] = useState("")
-    const [ohouseMessage, setOhouseMessage] = useState("")
+    const [ohouseMessage, setOhouseMessage] = useState()
 
     const [isEmail, setIsEmail] = useState("")
     const [isPassword, setIsPassword] = useState("")
     const [isConfirmPassword, setIsConfirmPassword] = useState("")
     const [isUsername, setIsUsername] = useState("")
-    const [numberOhouse, setNumberOhouse] = useState()
+    const [numberOhouse, setNumberOhouse] = useState("")
+    const [ohouseCheck, setOhouseCheck] = useState(null)
+
+    useEffect(() => {
+        setOhouseCheck(/https?:\/\/(www\.)?ohou.se\/users\/([-_a-z0-9]{1,15})/i)
+    }, []);
+
 
     const onChangeEmail = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const emailRegex =
@@ -96,21 +102,11 @@ function Join(){
     function onSubmit(e) {
         e.preventDefault();
 
-        const ohouseCheck = /https?:\/\/(www\.)?ohou.se\/users\/([-_a-z0-9]{1,15})/i
-        if(ohouseCheck.test(ohouse)) {
-            setNumberOhouse(ohouse.replace(/[^0-9]/g, ""))
-        }
-        else {
-            setNumberOhouse("0")
-        }
-
-        console.log(numberOhouse)
-
         axios.post('http://34.64.87.78:8000/register', {
             email: email,
             password: confirmPassword,
             username: username,
-            ohouse: numberOhouse,
+            ohouse: ohouseCheck.test(ohouse) ? ohouse.replace(/[^0-9]/g, "") : "0",
         }).then(res => {
             alert("회원가입이 완료되었습니다.")
             window.location.replace('/#/history/' + res.data.user_id);
