@@ -4,8 +4,7 @@ function FilterMenuLeft({ getFilter }) {
   const [ minprice, setMinprice ] = useState(0);
   const [ maxprice, setMaxprice ] = useState(1000000);
   const [ category, setCategory ] = useState([]);
-  const categories = ['가구', '주방용품', '수납·정리', '생활용품', '패브릭', '가전·디지털', '공구·DIY', '데코·식물', '인테리어시공',
-  '조명', '캠핑·레저', '생필품', '유아·아동', '반려동물', '식품', '렌탈'];
+  const categories = ['가구', '주방용품', '수납·정리', '생활용품', '패브릭', '공구·DIY', '데코·식물', '조명'];
 
   return (
     <ul className="list-group list-group-flush rounded">
@@ -33,22 +32,25 @@ function FilterMenuLeft({ getFilter }) {
             <label htmlFor="floatingInput">Max Price</label>
           </div>
           <h5 className="mt-1 mb-2">Category</h5>
-            { categories.map((cat) => {
+          <div className="filterCategory">
+            { categories.map((cat,index) => {
                 return (
-                  <button value={ cat } className='category_deactivate' onClick={ (event) => {
+                  <>
+                  <button value={ cat } className='category_deactivate category_item' key={`category${index}`}onClick={ (event) => {
                     const ca = event.target.value;
                     const click = event.target.className;
-                    console.log(click, category)
-                    if(click === 'category_activate') {
+                    if(click === 'category_activate category_item') {
                       setCategory(category.filter(c => c !== ca));
-                      event.target.className = 'category_deactivate';
+                      event.target.className = 'category_deactivate category_item';
                     } else {
                       setCategory([...category, ca]);
-                      event.target.className = 'category_activate';
+                      event.target.className = 'category_activate category_item';
                     }
                   } }>{ cat }</button>
+                  </>
                 )
             })}
+            </div>
           <br/>
           <button className="btn btn-dark apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
         </div>

@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 function Detail() {
     const [ product, setProduct ] = useState([]);
     const [ similar, setSimilar ] = useState([]);
+    const [ cloud, setCloud ] = useState('');
     var [clicked, setClicked] = useState(false);
   
     const handleClick = () => {
@@ -29,16 +30,28 @@ function Detail() {
     
     useEffect(() => {
         const controller = new AbortController()
-        axios.get('http://localhost:8000/item/' + item_id)
+        axios.get('http://34.64.87.78:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
             setProduct(data);
         })
         .catch( error => console.log(error) );
-        axios.get(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
+        axios.get(`http://115.85.181.95:30003/recommend/similar/item?item_id=${item_id}&top_k=10`)
         .then(response => response.data)
         .then(data => {
             setSimilar(data);
+        })
+        .catch( error => console.log(error) );
+        axios({            
+            method:'GET',
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=1`,
+            responseType:'blob'
+            })
+        .then(response => {
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] } ));
+            console.log(url);
+            setCloud(url);
+            window.URL.revokeObjectURL(url);
         })
         .catch( error => console.log(error) );
         return () => {
@@ -52,7 +65,7 @@ function Detail() {
                 <Container>
                     <ItemBox>
                         <ImgBox>
-                            <img src={product.img_main} alt="상품 이미지"/>
+                            <img src={product.image_url} alt="상품 이미지"/>
                         </ImgBox>
                         <ItemInfoBox>
                             <InfoBox>
@@ -94,6 +107,8 @@ function Detail() {
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
+                    <br/>
+                    <image src={cloud} alt='wordcloud'/>
                     <br/>
                     <h3>유사한 물품</h3>
                     <br/>

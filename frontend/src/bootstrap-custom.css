@@ -10735,3 +10735,24 @@ textarea.form-control-lg {
 .category_activate {
   background-color: #ff6f61;
 }
+
+.filterCategory {
+  display: grid;	
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(40%, auto));
+}
+
+.category_item {
+  width: 100%;
+  border: solid 2px grey;
+  border-radius: 15px;
+}
+
+.category_item:nth-child(odd) { 
+  grid-column: 1;
+}
+
+.category_item:nth-child(even) { 
+  grid-column: 2;
+}

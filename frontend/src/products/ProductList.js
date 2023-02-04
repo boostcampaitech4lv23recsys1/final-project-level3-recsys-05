@@ -14,19 +14,19 @@ function ProductList() {
 
   useEffect(() => {
     const controller = new AbortController()
-    axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", [201149], {signal:controller.signal})      
+    axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10", {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setProducts(data);
     })
     .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, {signal:controller.signal})      
+    axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setTotals(data);
     })
     .catch( error => console.log(error) );
-    axios.get(`http://115.85.181.95:30002/recommend/similar/user?user_id=${11}&top_k=10`, {signal:controller.signal})      
+    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${11}&top_k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setSimusers(data);
@@ -43,10 +43,23 @@ function ProductList() {
   applyButton.textContent = 'Apply';
 
   function getFilter(minprice, maxprice, category) {
-    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10&minp=${minprice}&maxp=${maxprice}`, category)
+    const d = {"price_s":minprice, "price_e":maxprice, "category":category}
+    axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, d)
+    .then( response => response.data )
+    .then( data => {
+      setProducts(data);
+    })
+    .catch( error => console.log(error) );
+    axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, d)
     .then( response => response.data )
     .then( data => {
       setTotals(data);
+    })
+    .catch( error => console.log(error) );
+    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${11}&top_k=10`, d)
+    .then( response => response.data )
+    .then( data => {
+      setSimusers(data);
     })
     .catch( error => console.log(error) );
   }
