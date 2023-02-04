@@ -1,39 +1,29 @@
-import Banner from "./Banner";
 import ScrollToTopOnMount from "../template/ScrollToTopOnMount";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import BannerZero from "./unziplogo.png";
+import styled from 'styled-components';
+
+
 
 function Landing() {
   return (
     <>
       <ScrollToTopOnMount />
-      <Banner />
-      <div className="d-flex flex-column bg-white py-4">
-        <p className="text-center px-5">
-          회원님의 구매 이력을 바탕으로 물품을 추천하는 @@ 서비스 입니다.
-        </p>
+      <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}><Logo src={BannerZero}/></div>
         <div className="d-flex justify-content-center">
           <Link to="/login" className="btn btn-primary" replace>
             로그인
           </Link>
-        </div>
-      </div>
-      <div className="d-flex flex-column bg-white py-4">
-        <h5 className="text-center mb-3">Follow us on</h5>
-        <div className="d-flex justify-content-center">
-          <a href="!#" className="me-3">
-            <FontAwesomeIcon icon={["fab", "facebook"]} size="2x" />
-          </a>
-          <a href="!#">
-            <FontAwesomeIcon icon={["fab", "instagram"]} size="2x" />
-          </a>
-          <a href="!#" className="ms-3">
-            <FontAwesomeIcon icon={["fab", "twitter"]} size="2x" />
-          </a>
-        </div>
       </div>
     </>
   );
 }
 
+const Logo = styled.img`
+    padding: 16px 0;
+    margin-top: 200px;
+    width: 50vw;
+    align-items: center;
+`;
 export default Landing;

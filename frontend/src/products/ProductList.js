@@ -22,17 +22,9 @@ function ProductList() {
       "수납·정리",
       "생활용품",
       "패브릭",
-      "가전·디지털",
       "공구·DIY",
       "데코·식물",
-      "인테리어시공",
-      "조명",
-      "캠핑·레저",
-      "생필품",
-      "유아·아동",
-      "반려동물",
-      "식품",
-      "렌탈"]
+      "조명"]
     }
 
   useEffect(() => {
@@ -55,6 +47,7 @@ function ProductList() {
     axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
+      console.log(data)
       setTotals(data);
     })
     .catch( error => console.log(error) );
@@ -76,6 +69,7 @@ function ProductList() {
     axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, {'input_list':wishProducts, 'filters':d})
     .then( response => response.data )
     .then( data => {
+      console.log(data);
       setProducts(data);
     })
     .catch( error => console.log(error) );
@@ -168,7 +162,7 @@ function ProductList() {
                 </div>
               </div>
             </div>
-            <h2>용욱님을 위한 추천</h2>
+            <h2>username님을 위한 추천</h2>
             <br/>
             <ItemSwiper field="1" products={ products }></ItemSwiper>
             <br/>

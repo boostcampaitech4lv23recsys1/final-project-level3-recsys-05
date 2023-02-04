@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Logo from '../landing/logo.png';
+import Logo from '../landing/unziplogo.png';
 import { Link, useHistory } from 'react-router-dom';
 import axios, { AxiosInstance } from 'axios';
 import { useState, useCallback } from 'react';
@@ -45,7 +45,8 @@ function Login(){
     return (
         <div>
             <Container className="panel mt-5 pt-5">
-                <img src={Logo} height="70" className="mb-4"/>
+                <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}>
+                <img src={Logo} height="200" className="mt-3 mb-2"/></div>
                 <Form>
                     <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
                         <Col sm>

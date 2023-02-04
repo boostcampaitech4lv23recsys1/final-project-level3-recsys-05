@@ -10764,6 +10764,11 @@ textarea.form-control-lg {
 
 #cloudCon {
   text-align: center;;
+.historys {
+  display: grid;	
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(20%, auto));
 }
 
 .category_item {
