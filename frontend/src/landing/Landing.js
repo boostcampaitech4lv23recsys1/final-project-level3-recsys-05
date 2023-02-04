@@ -12,12 +12,10 @@ function Landing() {
     <>
       <ScrollToTopOnMount />
       <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}><Logo src={BannerZero}/></div>
-      <div className="d-flex flex-column bg-white py-4">
         <div className="d-flex justify-content-center">
           <Link to="/login" className="btn btn-primary" replace>
             로그인
           </Link>
-        </div>
       </div>
     </>
   );
@@ -25,7 +23,7 @@ function Landing() {
 
 const Logo = styled.img`
     padding: 16px 0;
-    margin: 50px;
+    margin-top: 200px;
     width: 50vw;
     align-items: center;
 `;

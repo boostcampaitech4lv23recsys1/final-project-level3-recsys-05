@@ -1,6 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useHistory } from "react-router-dom";
 import { useState, useEffect } from "react";
+import styled from 'styled-components';
+import Logo from './thelogo.png'
+
 
 function Header(props) {
 
@@ -28,12 +31,7 @@ function Header(props) {
       <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
         <div className="container-fluid">
           <Link className="navbar-brand" to={props.logined==null? "/" : "/products"} onClick={changeNav}>
-            {/* <FontAwesomeIcon
-              icon={["fab", "bootstrap"]}
-              className="ms-1"
-              size="lg"
-            /> */}
-            <span className="ms-2 h5">Unzip</span>
+            <span className="ms-2 h5"><img src={Logo} style={{width:"30px"}}/> UNZYP</span>
           </Link>
 
           <div className={"navbar-collapse offcanvas-collapse " + (openedDrawer ? 'open' : '')}>
