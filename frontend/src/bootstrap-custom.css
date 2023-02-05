@@ -10763,7 +10763,8 @@ textarea.form-control-lg {
 }
 
 #cloudCon {
-  text-align: center;;
+  text-align: center;
+}
 .historys {
   display: grid;	
   row-gap: 10px;
@@ -10783,4 +10784,9 @@ textarea.form-control-lg {
 
 .category_item:nth-child(even) { 
   grid-column: 2;
+}
+
+.filterbar {
+  position: sticky;
+  top: 10%;
 }

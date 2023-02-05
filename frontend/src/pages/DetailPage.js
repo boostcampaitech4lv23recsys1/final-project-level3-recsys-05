@@ -8,12 +8,14 @@ import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import base64 from 'base-64';
 import ReactDOM from 'react-dom';
+import loading from '../landing/loading.gif';
 
 // 상세 제품 페이지
 function Detail() {
     const [ product, setProduct ] = useState([]);
     const [ similar, setSimilar ] = useState([]);
-    var [clicked, setClicked] = useState(false);
+    const [ wishProducts, setWishProducts ] = useState([]);
+    const [clicked, setClicked] = useState(false);
     const theitemid = useParams()['itemid'];
   
     const handleClick = () => {
@@ -33,13 +35,21 @@ function Detail() {
 
     useEffect(() => {
         const controller = new AbortController();
+        ReactDOM.render(<><br/><img src={loading}></img></>, document.getElementById('cloudCon'));
+        axios.get("http://34.64.87.78:8000/wishes/" + localStorage.getItem("token"))
+        .then(response => {
+          setWishProducts(response.data);
+          setClicked(wishProducts.includes(Number(item_id)));
+        })
+        .catch( error => console.log(error) );
+
         axios.get('http://34.64.87.78:8000/item/' + item_id)
         .then(response => response.data)
         .then(data => {
             setProduct(data);
         })
         .catch( error => console.log(error) );
-        axios.post(`http://115.85.181.95:30003/recommend/similar/item?item_id=${item_id}&top_k=10`)
+        axios.post(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
         .then(response => response.data)
         .then(data => {
             setSimilar(data);
@@ -47,7 +57,7 @@ function Detail() {
         .catch( error => console.log(error) );
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${1}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${1}`,
             // responseType:'blob'
             })
         .then(response => response.data)
@@ -65,16 +75,16 @@ function Detail() {
         const buttons = document.getElementsByClassName("starButton");
         [0,1,2,3,4].map((i) => {
             const button = buttons[i];
-            if(button.value == value) {
+            if(button.value === value) {
                 button.setAttribute('class', 'activate starButton');
             } else {
                 button.setAttribute('class', 'deactivate starButton');
             }
         })
+        ReactDOM.render(<><br/><img src={loading}></img></>, document.getElementById('cloudCon'));
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${1}`,
-            // url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${value}`
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}`,
             })
         .then(response => response.data)
         .then(data => {
@@ -125,9 +135,7 @@ function Detail() {
                                 </TotalPrice>
                                 <ButtonBox>
                                     <CartBtn>
-                                        
-                                        <FontAwesomeIcon icon={["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
-                                        
+                                        <FontAwesomeIcon icon={clicked?["fas", "heart"]:["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
                                     </CartBtn>
                                     <BuyBtn onClick={() => {window.open('https://ohou.se/productions/' + item_id)}}>오늘의집에서 보기</BuyBtn>
                                 </ButtonBox>
@@ -137,7 +145,7 @@ function Detail() {
                     <br/>
                     <div className = 'filterStar d-flex flex-row'>
                         {[1,2,3,4,5].map( (i) =>{
-                            if(i == "1") {
+                            if(i === "1") {
                                 return (
                                     <button value={ i } key={'button'+i} className="activate starButton" onClick={(event) => {               
                                         onClickButton(event.target.value);
@@ -155,7 +163,7 @@ function Detail() {
                     <br/>
                     <h3>유사한 물품</h3>
                     <br/>
-                    <ItemSwiper products={ similar } field='4'/>
+                    <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
                 </Container>
             )}
         </>

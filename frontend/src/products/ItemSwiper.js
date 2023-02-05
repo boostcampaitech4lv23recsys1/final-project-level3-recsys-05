@@ -5,6 +5,7 @@ import SwiperCore, { Navigation } from "swiper";
 import Product from "./Product";
 
 function ItemSwiper(props) {
+  const wishProducts = props.wishProducts;
   const products = props.products;
   const field = props.field;
 
@@ -28,7 +29,7 @@ function ItemSwiper(props) {
         products.map((product, index) => {
           return (
             <SwiperSlide key={field + index}>
-              <Product product={ product } field={field + index}/>	
+              <Product product={ product } field={field + index} wish={ wishProducts.includes(product.item_id) }/>	
             </SwiperSlide>
           )
         })

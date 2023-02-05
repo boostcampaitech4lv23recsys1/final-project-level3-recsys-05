@@ -38,20 +38,19 @@ function ProductList() {
 
     // wish list gcp 서버에서 받아오기
     
-    axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10", {'input_list':wishProducts, 'filters':defaultFilter}, {signal:controller.signal})      
+    axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", {'input_list':wishProducts, 'filters':defaultFilter}, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setProducts(data);
     })
     .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, {signal:controller.signal})      
+    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
-      console.log(data)
       setTotals(data);
     })
     .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${11}&top_k=10`, {signal:controller.signal})      
+    axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${11}&top_k=10`, {signal:controller.signal})      
     .then( response => response.data)
     .then( data => {
       setSimusers(data);
@@ -64,27 +63,36 @@ function ProductList() {
   }, []);
 
   function getFilter(minprice, maxprice, category) {
-    const d = {"price_s":minprice, "price_e":maxprice, "category":category}
-    console.log(wishProducts)
-    axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, {'input_list':wishProducts, 'filters':d})
-    .then( response => response.data )
-    .then( data => {
-      console.log(data);
-      setProducts(data);
-    })
-    .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, d)
-    .then( response => response.data )
-    .then( data => {
-      setTotals(data);
-    })
-    .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${11}&top_k=10`, d, {'header':'Access-Control-Allow-Origin'})
-    .then( response => response.data )
-    .then( data => {
-      setSimusers(data);
-    })
-    .catch( error => console.log(error) );
+    if(minprice>=0 & maxprice>=0) {
+      if(minprice < maxprice) {
+        const d = {"price_s":minprice, "price_e":maxprice, "category":category};
+        if(category.length === 0) {
+          d.category = defaultFilter.category;
+        }
+        axios.post(`http://115.85.181.95:30002/recommend/personal?top_k=10`, {'input_list':wishProducts, 'filters':d})
+        .then( response => response.data )
+        .then( data => {
+          setProducts(data);
+        })
+        .catch( error => console.log(error) );
+        axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, d)
+        .then( response => response.data )
+        .then( data => {
+          setTotals(data);
+        })
+        .catch( error => console.log(error) );
+        axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${11}&top_k=10`, d)
+        .then( response => response.data )
+        .then( data => {
+          setSimusers(data);
+        })
+        .catch( error => console.log(error) );
+      } else {
+        alert("최소, 최대 금액이 맞지 않습니다.");
+      }
+    } else {
+      alert("가격이 입력되지 않았습니다.");
+    }
   }
 
   return (
@@ -141,7 +149,7 @@ function ProductList() {
 
       <div className="row mb-4 mt-lg-3">
         <div className="d-none d-lg-block col-lg-3">
-          <div className="border rounded shadow-sm">
+          <div className="border rounded shadow-sm filterbar">
             <FilterMenuLeft getFilter = { getFilter }/>
           </div>
         </div>
@@ -164,15 +172,15 @@ function ProductList() {
             </div>
             <h2>username님을 위한 추천</h2>
             <br/>
-            <ItemSwiper field="1" products={ products }></ItemSwiper>
+            <ItemSwiper field="1" products={ products } wishProducts={ wishProducts }></ItemSwiper>
             <br/>
             <h2>인기있는 상품</h2>
             <br/>
-            <ItemSwiper field="2" products={ totals }></ItemSwiper>
+            <ItemSwiper field="2" products={ totals } wishProducts={ wishProducts }></ItemSwiper>
             <br/>
             <h2>유사한 유저가 구매한 물품</h2>
             <br/>
-            <ItemSwiper field="3" products={ simusers }></ItemSwiper>
+            <ItemSwiper field="3" products={ simusers } wishProducts={ wishProducts }></ItemSwiper>
             <br/>
           </div>
         </div>

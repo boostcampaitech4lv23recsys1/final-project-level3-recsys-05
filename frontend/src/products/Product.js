@@ -1,11 +1,22 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import StarRate from "./StarRate";
 
 function Product(props) {
-  var [clicked, setClicked] = useState(false);
+  const [ clicked, setClicked ] = useState(false);
 
+  const product = props.product;
+  const id = product.item_ids;
+  const name = product.titles;
+  const price = product.selling_prices;
+  const star = product.star_avgs;
+  const Image = product.img_urls;
+  const brand = product.brands;
+  const field = props.field;
+
+  useEffect(() => {setClicked(props.wish)});
+  
   const handleClick = () => {
     const heart = document.getElementById("like"+id).getElementsByTagName("path")[0];
     if(clicked) {
@@ -18,15 +29,6 @@ function Product(props) {
       setClicked(true);
     }
   };
-
-  const product = props.product;
-  const id = product.item_ids;
-  const name = product.titles;
-  const price = product.selling_prices;
-  const star = product.star_avgs;
-  const Image = product.img_urls;
-  const brand = product.brands;
-  const field = props.field;
   
   return (
       <div className={"card shadow-sm card" + field}>
@@ -47,7 +49,7 @@ function Product(props) {
           <p className="card-text text-center text-muted mb-0 price">{ '￦' + [price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }</p>
           <StarRate className="card-text text-center text-muted mb-0 star" star={ star } id={ id }/>
           <div className="d-grid d-block text-center">
-              <FontAwesomeIcon icon={["far", "heart"]} id={ `like${id}`} onClick={ handleClick } className={"like"}/>
+            <FontAwesomeIcon icon={clicked ? ["fas", "heart"] : ["far", "heart"]} id={ `like${id}`} onClick={ handleClick } className={"like"}/>    
           </div>
         </div>
       </div>
