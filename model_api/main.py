@@ -5,6 +5,7 @@ import base64
 import uvicorn
 import torch
 import random
+import requests
 import pickle
 import numpy as np
 import pandas as pd
@@ -30,7 +31,7 @@ from termcolor import colored
 
 f = Figlet(font="slant")
 print(colored(f.renderText('For Better Life'), 'green'))
-
+print(colored(f.renderText('UNZYP'), 'red'))
 
 LIMIT = 10000000000
 app = FastAPI()
@@ -188,10 +189,14 @@ def get_normal_recommendation(filters : Filters, k : int):
 @app.post('/recommend/similar/user/', description='get similar user')
 def get_similar_user(filters : Filters, user_id: int, top_k: int):
     print(f"user : {filters}")
+    user_latent = requests.request(method='get', url=f'34.64.87.78:8000/gogo/{user_id}')
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
     ann.load('model/annoy.ann')
-    recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k**2)
+    ann.add_item(0, np.array(user_latent))
+    # an.save('model/annoy.ann')
+    # recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k**2)
+    recommend = ann.get_nns_by_item(0, n=top_k**2);
     recommend = [vec2user[rec] for rec in recommend]
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
@@ -214,10 +219,8 @@ def get_similar_item(item_id: int, top_k: int):
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
 def rec_topk(filters : Filters, input_list: List[int], top_k: int):
-    print(f"personal : {filters}")
-
     input_list = [token2item_id[str(i)] for i in input_list]
-
+    
     model.eval()
 
     # model input 생성
@@ -233,6 +236,7 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int):
 
     # sort & topk
     pred_list = np.argsort(rating_pred)[np.arange(len(rating_pred)), ::-1]
+
     # ind = np.argpartition(rating_pred, -split)[:, -split:]
     # arr_ind = rating_pred[np.arange(len(rating_pred))[:, None], ind]
     # arr_ind_argsort = np.argsort(arr_ind)[np.arange(len(rating_pred)), ::-1]
@@ -248,7 +252,6 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int):
         except:
             pass
     # if filters and (not filters.price_s and filters.price_e == LIMIT and filters.category == DEFAULT_CATEGORY):
-    
     df_ = product_si.loc[(product_si['selling_price'] >= filters.price_s) & (product_si['selling_price'] <= filters.price_e) &
                 (product_si['category0'].isin(filters.category))]
     cnt = 0
@@ -260,21 +263,20 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int):
     for id in output_list:
         if id in df_['item_id'].tolist():
             id_info = df_[df_['item_id']==id]
-            item_ids.append(id_info['item_id'].values[0])
-            img_urls.append(id_info['img_main'].values[0])
-            original_prices.append(id_info['original_price'].values[0])
-            selling_prices.append(id_info['selling_price'].values[0])
-            star_avgs.append(id_info['review_avg'].values[0])
-            brands.append(id_info['brand'].values[0])
-            titles.append(re.sub(pattern2, '', re.sub(pattern1, '', id_info['title'].values[0])))
+            item_ids.append(id_info['item_id'].item())
+            img_urls.append(id_info['img_main'].item())
+            original_prices.append(id_info['original_price'].item())
+            selling_prices.append(id_info['selling_price'].item())
+            star_avgs.append(id_info['review_avg'].item())
+            brands.append(id_info['brand'].item())
+            titles.append(re.sub(pattern2, '', re.sub(pattern1, '', id_info['title'].item())))
             cnt += 1
         if cnt == top_k:
             break
-
     result__ = []
     for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles, star_avgs, brands)):
         a, b, c, d, e, f, g = val
-        tmp = defaultdict(int)
+        tmp = {}
         tmp['item_ids'] = a
         tmp['img_urls'] = b
         tmp['original_prices'] = c
@@ -283,7 +285,6 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int):
         tmp['star_avgs'] = f
         tmp['brands'] = g
         result__.append(tmp)
-        
     return result__
     # return get_item_info(result, filters, top_k)
     # return get_item_info(result, top_k)
@@ -298,4 +299,3 @@ def get_review_cls():
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
-
