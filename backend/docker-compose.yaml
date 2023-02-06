@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  postgres-server:
+    image: postgres:14.0
+    container_name: postgres-server
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: db-database
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "root", "-d", "db-database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-server:
+    ports: 
+      - 8000:8000
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-server
+    depends_on:
+      postgres-server:
+        condition: service_healthy
