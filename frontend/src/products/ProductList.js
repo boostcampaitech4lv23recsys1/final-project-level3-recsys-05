@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ScrollToTopOnMount from "../template/ScrollToTopOnMount";
 import React from "react";
 import axios from "axios";
 import FilterMenuLeft from "./FilterMenuLeft";
+import FilterBudgetLeft from "./FilterBudgetLeft";
 import ItemSwiper from "./ItemSwiper";
+import ReactDOM from 'react-dom';
 
 function ProductList() {
   const [ products, setProducts ] = useState([]);
@@ -31,42 +31,53 @@ function ProductList() {
   useEffect(() => {
     const controller = new AbortController();
     const logintoken = localStorage.getItem("token");
-
+    const filter = defaultFilter;
     axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
-    .then(response => {
-      setWishProducts(response.data);
+    .then(response => response.data)
+    .then(data => {
+      setWishProducts(data);
+      axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", {'input_list':data, 'filters':filter})      
+      .then( response => response.data)
+      .then( data => {
+        setProducts(data);
+      })
+      .catch( error => console.log(error) );
+      console.log(wishProducts);
     })
+    .catch((error) => console.log(error));
 
     axios.get("http://34.64.87.78:8000/username/" + logintoken)
     .then(resp => {
       setMyusername(resp.data);
     })
+    .catch((error) => console.log(error));
 
-    // wish list gcp 서버에서 받아오기
-    
-    axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", {'input_list':wishProducts, 'filters':defaultFilter}, {signal:controller.signal})      
-    .then( response => response.data)
-    .then( data => {
-      setProducts(data);
-    })
-    .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, {signal:controller.signal})      
+    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, filter)      
     .then( response => response.data)
     .then( data => {
       setTotals(data);
     })
     .catch( error => console.log(error) );
-    axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${11}&top_k=10`, {signal:controller.signal})      
+
+    axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${logintoken}&top_k=10`, filter)      
     .then( response => response.data)
     .then( data => {
       setSimusers(data);
     })
     .catch( error => console.log(error) );
-    
+
+    // wish list gcp 서버에서 받아오기
     return () => {
      controller.abort();
     }
   }, []);
+
+  useEffect(() => {ReactDOM.render(<ItemSwiper field="1" products={ products } wishProducts={ wishProducts }></ItemSwiper>, document.getElementById('swiper01'));
+  }, [products, wishProducts])
+  useEffect(() => {ReactDOM.render(<ItemSwiper field="2" products={ totals } wishProducts={ wishProducts }></ItemSwiper>, document.getElementById('swiper02'));
+  }, [totals, wishProducts])
+  useEffect(() => {ReactDOM.render(<ItemSwiper field="3" products={ simusers } wishProducts={ wishProducts }></ItemSwiper>, document.getElementById('swiper03'));
+  }, [simusers, wishProducts])
 
   function getFilter(minprice, maxprice, category) {
     if(minprice>=0 & maxprice>=0) {
@@ -75,19 +86,30 @@ function ProductList() {
         if(category.length === 0) {
           d.category = defaultFilter.category;
         }
-        axios.post(`http://115.85.181.95:30002/recommend/personal?top_k=10`, {'input_list':wishProducts, 'filters':d})
-        .then( response => response.data )
-        .then( data => {
-          setProducts(data);
+        
+        const logintoken = localStorage.getItem("token");
+        axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
+        .then(response => response.data)
+        .then(data => {
+          setWishProducts(data);
+          axios.post(`http://115.85.181.95:30002/recommend/personal?top_k=10`, {'input_list':data, 'filters':d})
+          .then( response => response.data )
+          .then( data => {
+            setProducts(data);
+          })
+          .catch( error => console.log(error) );
         })
         .catch( error => console.log(error) );
+
+
         axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, d)
         .then( response => response.data )
         .then( data => {
           setTotals(data);
         })
         .catch( error => console.log(error) );
-        axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${11}&top_k=10`, d)
+
+        axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${logintoken}&top_k=10`, d)
         .then( response => response.data )
         .then( data => {
           setSimusers(data);
@@ -98,6 +120,29 @@ function ProductList() {
       }
     } else {
       alert("가격이 입력되지 않았습니다.");
+    }
+  }
+
+  function getFilterBudget(budget, category) {
+    if(budget >= 0) {
+      const d = {"budget":budget, "category":category};
+      if(category.length === 0) {
+        d.category = defaultFilter.category;
+      }
+      
+      const logintoken = localStorage.getItem("token");
+      axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
+      .then(response => {
+        setWishProducts(response.data);
+      })
+      .catch( error => console.log(error) );
+
+      axios.post('http://localhost:8000/budget/10000', {'input_list':wishProducts, 'category': category})
+      .then(response => response.data)
+      .then(data => setProducts(data))
+      .catch(error => console.log(error))
+    } else {
+      alert("예산이 입력되지 않았습니다.");
     }
   }
 
@@ -138,9 +183,43 @@ function ProductList() {
       </div>
 
       <div className="row mb-4 mt-lg-3">
-        <div className="d-none d-lg-block col-lg-3">
-          <div className="border rounded shadow-sm filterbar">
+        <div className="d-none d-lg-block col-lg-3 filterbar">
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingOne">
+              <button
+                className="accordion-button fw-bold"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFilterPrice"
+                aria-expanded="false"
+                aria-controls="collapseFilterPrice"
+              >
+              가격 필터
+              </button>
+            </h2>
+          </div>
+          <div className="border rounded shadow-sm accordion-collapse collapse-show" 
+              id="collapseFilterPrice">
             <FilterMenuLeft getFilter = { getFilter }/>
+          </div>
+          
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingOne">
+              <button
+                className="accordion-button fw-bold collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFilterBudget"
+                aria-expanded="false"
+                aria-controls="collapseFilterBudget"
+              >
+              예산 필터
+              </button>
+            </h2>
+          </div>
+          <div className="border rounded shadow-sm accordion-collapse collapse" 
+              id="collapseFilterBudget">
+            <FilterBudgetLeft getFilter = { getFilterBudget }/>
           </div>
         </div>
         <div className="col-lg-9">
@@ -151,15 +230,15 @@ function ProductList() {
             </div>
             <h2>{myusername}님을 위한 추천</h2>
             <br/>
-            <ItemSwiper field="1" products={ products } wishProducts={ wishProducts }></ItemSwiper>
+            <div id='swiper01'></div>
             <br/>
             <h2>인기있는 상품</h2>
             <br/>
-            <ItemSwiper field="2" products={ totals } wishProducts={ wishProducts }></ItemSwiper>
+            <div id='swiper02'></div>
             <br/>
             <h2>유사한 유저가 구매한 물품</h2>
             <br/>
-            <ItemSwiper field="3" products={ simusers } wishProducts={ wishProducts }></ItemSwiper>
+            <div id='swiper03'></div>
             <br/>
           </div>
         </div>

@@ -3,11 +3,21 @@ import "swiper/swiper.min.css";
 import "swiper/components/navigation/navigation.min.css";
 import SwiperCore, { Navigation } from "swiper";
 import Product from "./Product";
+import { useState, useEffect } from "react";
 
 function ItemSwiper(props) {
+  const [ clicked, setClicked ] = useState([])
   const wishProducts = props.wishProducts;
   const products = props.products;
   const field = props.field;
+
+  useEffect(() => {
+    const temp = []
+    Array.from(products).map((product) => {
+      temp.push(wishProducts.includes(product.item_ids))
+    })
+    setClicked(temp)
+  }, [wishProducts])
 
   return (
     <>
@@ -23,13 +33,13 @@ function ItemSwiper(props) {
             slidesPerView: 5,
           },
         }}
-        id={field}
+        id={"swiper"+field}
       >
       {	
         products.map((product, index) => {
           return (
             <SwiperSlide key={field + index}>
-              <Product product={ product } field={field + index} wish={ wishProducts.includes(product.item_id) }/>	
+              <Product product={ product } field={field + index} wish={ clicked[index] }/>	
             </SwiperSlide>
           )
         })

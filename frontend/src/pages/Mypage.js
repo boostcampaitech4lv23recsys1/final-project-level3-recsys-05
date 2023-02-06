@@ -24,7 +24,8 @@ function Mypage() {
   return (	
     <div>	
       {/* jumbotron */}	
-      <div class="bg-light p-5 rounded-lg">	
+      <div class="bg-light p-5 rounded-lg">
+        <br/>
         <h1 class="display-4">마이페이지</h1>	
         {/* <p class="lead">반가워요</p>	 */}
         <hr class="my-4" />	
@@ -93,7 +94,7 @@ function Product(props) {
   
   return (
       <div className={"card shadow-sm card" + field}>
-        <a href={ "#/detail/" + id } className="link" target="_blank">
+        <a href={ "#/detail/" + id } className="link" target="blank">
           <img
             className="card-img-top bg-dark cover"
             height="200"

@@ -1,8 +1,7 @@
 import { useState } from "react";
 
-function FilterMenuLeft({ getFilter }) {
-  const [ minprice, setMinprice ] = useState(0);
-  const [ maxprice, setMaxprice ] = useState(1000000);
+function FilterBudgetLeft({ getFilter }) {
+  const [ budget, setBudget ] = useState(100000);
   const [ category, setCategory ] = useState([]);
   const categories = ['가구', '주방용품', '수납·정리', '생활용품', '패브릭', '공구·DIY', '데코·식물', '조명'];
 
@@ -10,27 +9,17 @@ function FilterMenuLeft({ getFilter }) {
     <>
     <ul className="list-group list-group-flush rounded">
       <li className="list-group-item hideMenu">
-        <h5 className="mt-1 mb-2">Price Range</h5>
+        <h5 className="mt-1 mb-2">Your Budget</h5>
         <div className="d-grid d-block mb-3">
           <div className="form-floating mb-2">
             <input
               type="number"
-              className="form-control min-price"
+              className="form-control budget"
               placeholder="Min"
-              defaultValue={ minprice }
-              onChange= {(event)=> setMinprice(event.target.valueAsNumber)}
+              defaultValue={ budget }
+              onChange= {(event)=> setBudget(event.target.valueAsNumber)}
             />
-            <label htmlFor="floatingInput">Min Price</label>
-          </div>
-          <div className="form-floating mb-2">
-            <input
-              type="number"
-              className="form-control max-price"
-              placeholder="Max"
-              defaultValue= { maxprice }
-              onChange = {(event)=> setMaxprice(event.target.valueAsNumber)}
-            />
-            <label htmlFor="floatingInput">Max Price</label>
+            <label htmlFor="floatingInput">Budget</label>
           </div>
           <h5 className="mt-1 mb-2">Category</h5>
           <div className="filterCategory">
@@ -55,10 +44,10 @@ function FilterMenuLeft({ getFilter }) {
           <br/>
         </div>
       </li>
-    <button className="btn btn-dark apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
+    <button className="btn btn-dark apply" onClick={ () => getFilter(budget, category) }>Apply</button>
     </ul>
   </>
   );
 }
 
-export default FilterMenuLeft;
+export default FilterBudgetLeft;
