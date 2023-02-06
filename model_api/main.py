@@ -61,7 +61,8 @@ wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumGothicBold.ttf',
                background_color='white',
                width=800, height=600,
                max_words=200,
-               mask=mask)
+               mask=mask,
+               colormap='seismic')
 
  # model, dataset 불러오기
 config, model, dataset, train_data, _, _ = load_data_and_model("model/CDAE-Jan-27-2023_06-49-36.pth")
