@@ -5,6 +5,7 @@ import base64
 import uvicorn
 import torch
 import random
+import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -47,6 +48,7 @@ app.add_middleware(
 data = pd.read_csv("data/for_word_cloud.csv", lineterminator='\n')
 data2 = pd.read_csv("data/final_v2.inter", lineterminator='\n')
 product_si = pd.read_csv("data/side_info.csv")
+reivew_classification = pd.read_csv("data/review_classification.csv")
 
 DEFAULT_CATEGORY = product_si['category0'].unique().tolist()
 
@@ -55,7 +57,7 @@ mask = Image.new("RGB", icon.size, (255,255,255))
 mask.paste(icon,icon)
 mask = np.array(mask)
 
-wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumPen.ttf',
+wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumGothicBold.ttf',
                background_color='white',
                width=800, height=600,
                max_words=200,
@@ -98,8 +100,11 @@ def from_image_to_bytes(img):
     return decoded
 
 def get_item_info(df, filters=None, k=10):
+    # print(df)
+    print(filters)
+    print(k)
     if filters:
-        df_ = df.loc[(df['original_price'] >= filters.price_s) & (df['original_price'] <= filters.price_e) &
+        df_ = df.loc[(df['selling_price'] >= filters.price_s) & (df['selling_price'] <= filters.price_e) &
                     (df['category0'].isin(filters.category))]
     else: df_ = df
     selected_items = random.sample(df_['item_id'].tolist(), k)
@@ -139,15 +144,27 @@ def test():
     return 'hello this is the main page'
 
 @app.get('/wordcloud/', description='get wordcloud')
-def get_wordcloud(item_id: int = Query(None), split: int = Query(None)):
-    text = '\n'.join(data.loc[(data['item_id'] == item_id) & (data['split'] == split), 'review'].tolist())
-    if text:
-        okt = Okt()
-        nouns = okt.nouns(text)
-        c = Counter(nouns)
-        gen = wc.generate_from_frequencies(c)
-        img = from_image_to_bytes(gen.to_image())
-        return JSONResponse(img)
+def get_wordcloud(item_id: int = Query(...), split: int = Query(...)):
+    try:
+        with open(f'data/wc_data/{item_id}_{split}.pickle', 'rb') as f:
+            data = pickle.load(f)
+        
+        for word in data:
+            if len(word) < 2: del(data['word'])
+    except:
+        return '리뷰가 존재하지 않습니다.'
+    gen = wc.generate_from_frequencies(data)
+    img = from_image_to_bytes(gen.to_image())
+    return JSONResponse(img)
+
+    # text = '\n'.join(data.loc[(data['item_id'] == item_id) & (data['split'] == split), 'review'].tolist())
+    # if text:
+        # okt = Okt()
+        # nouns = okt.nouns(text)
+        # c = Counter(nouns)
+        # gen = wc.generate_from_frequencies(c)
+        # img = from_image_to_bytes(gen.to_image())
+        # return JSONResponse(img)
     
     return '리뷰가 존재하지 않습니다.'
 
@@ -167,39 +184,37 @@ def get_normal_recommendation(filters : Filters, k : int):
 
     return get_item_info(recommend, filters, k)
 
-@app.post('/recommend/similar/item', description='get simlilar item')
-def get_similar_item(item_id: int = Query(None), top_k: int = Query(None), filters : Optional[Filters] = Body(None)):
-    from gensim.models import Word2Vec
-
-    model = Word2Vec.load('model/item2vec.model')
-    item_vectors = model.wv
-    if (not filters.price_s and filters.price_e != LIMIT and filters.category != DEFAULT_CATEGORY):
-        index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
-    else:
-        index = [i for i, _ in item_vectors.most_similar(item_id, topn=max(top_k**2, 200))]
-
-    result = product_si[product_si['item_id'].isin(index)]
-    if filters:
-        return get_item_info(result, filters, top_k)
-    return get_item_info(result, top_k)
-
-@app.post('/recommend/similar/user', description='get similar user')
-def get_similar_user(user_id: int = Query(None), top_k: int = Query(None), filters : Optional[Filters] = Body(None)):
+@app.post('/recommend/similar/user/', description='get similar user')
+def get_similar_user(filters : Filters, user_id: int, top_k: int):
+    print(f"user : {filters}")
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
     ann.load('model/annoy.ann')
-    recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k)
+    recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k**2)
     recommend = [vec2user[rec] for rec in recommend]
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
     recommend = product_si.loc[product_si['item_id'].isin(result)]
-    if filters:
-        return get_item_info(recommend, filters, top_k)
-    return get_item_info(recommend, top_k)
+    # if filters and (not filters.price_s and filters.price_e == LIMIT and filters.category == DEFAULT_CATEGORY):
+    return get_item_info(recommend, filters, top_k)
+    # return get_item_info(recommend, top_k)
+
+@app.post('/recommend/similar/item', description='get simlilar item')
+def get_similar_item(item_id: int, top_k: int):
+    from gensim.models import Word2Vec
+
+    model = Word2Vec.load('model/item2vec.model')
+    item_vectors = model.wv
+    index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
+    result = product_si[product_si['item_id'].isin(index)]
+
+    return get_item_info(df=result, k=top_k)
+
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
-def rec_topk(input_list: List[int], top_k: int, filters : Optional[Filters] = Body(None)):
-    
+def rec_topk(filters : Filters, input_list: List[int], top_k: int):
+    print(f"personal : {filters}")
+
     input_list = [token2item_id[str(i)] for i in input_list]
 
     model.eval()
@@ -231,11 +246,59 @@ def rec_topk(input_list: List[int], top_k: int, filters : Optional[Filters] = Bo
     for item in pred_list[0]:
         output_list.append(int(item_id2token[item]))
     result = product_si.loc[product_si['item_id'].isin(output_list)]
-    if filters:
-        return get_item_info(result, filters, top_k)
-    return get_item_info(result, top_k)
+    # if filters and (not filters.price_s and filters.price_e == LIMIT and filters.category == DEFAULT_CATEGORY):
+    
+    df_ = result.loc[(result['selling_price'] >= filters.price_s) & (result['selling_price'] <= filters.price_e) &
+                (result['category0'].isin(filters.category))]
+    cnt = 0
+    tmp = df_['item_id'].tolist()
+    real_result = []
+    for id in output_list:
+        if id in tmp:
+            real_result.append(id)
+            cnt += 1
+        if cnt == top_k:
+            break
+    df_ = df_.loc[df_['item_id'].isin(real_result)]
+    item_ids = df_['item_id'].tolist()
+    img_urls = df_['img_main'].tolist()
+    original_prices = df_['original_price'].tolist()
+    selling_prices = df_['selling_price'].tolist()
+    star_avgs = df_['review_avg'].tolist()
+    brands = df_['brand'].tolist()
+    titles = df_['title']
+    
+    pattern1 = r'\([^)]*\)'
+    pattern2 = r'\[[^)]*\]'
+    titles = titles.apply(lambda x: re.sub(pattern1, '', x))
+    titles = titles.apply(lambda x: re.sub(pattern2, '', x))
+    titles = titles.tolist()
 
+    result__ = []
+    for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles, star_avgs, brands)):
+        a, b, c, d, e, f, g = val
+        tmp = defaultdict(int)
+        tmp['item_ids'] = a
+        tmp['img_urls'] = b
+        tmp['original_prices'] = c
+        tmp['selling_prices'] = d
+        tmp['titles'] = e
+        tmp['star_avgs'] = f
+        tmp['brands'] = g
+        result__.append(tmp)
+        
+    return result__
+    # return get_item_info(result, filters, top_k)
+    # return get_item_info(result, top_k)
+
+@app.get('/review_cls', description='get pos and neg ratio')
+def get_review_cls():
+    item_label_cnt = reivew_classification.groupby(by=['item_id', 'label'], as_index=False).count()
+    per_item = item_label_cnt.loc[item_label_cnt['item_id'] == 449, 'review']
+    total = per_item.sum()
+    pos = per_item[0]
+    neg = per_item[1]
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=30003)#, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
 
