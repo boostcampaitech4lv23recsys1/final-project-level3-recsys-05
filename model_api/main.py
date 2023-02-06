@@ -65,7 +65,7 @@ wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumGothicBold.ttf',
                colormap='seismic')
 
  # model, dataset 불러오기
-config, model, dataset, train_data, _, _ = load_data_and_model("model/CDAE-Jan-27-2023_06-49-36.pth")
+config, model, dataset, train_data, _, _ = load_data_and_model("model/RecVAE-Jan-27-2023_06-50-00.pth")
 
 # device 설정
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -223,57 +223,53 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int):
     # model input 생성
     items = torch.zeros(len(item_id2token))
     items[input_list] = 1
-    dummy_user = torch.tensor([0])
 
     # inference
-    score = model(items.to(device), dummy_user.to(device))
-    score = model.o_act(score)
+    score, _, _, _ = model.forward(items.unsqueeze(0).to(device), model.dropout_prob)
     rating_pred = score.cpu().data.numpy().copy()
 
     # 입력한 아이템은 추천되지 않도록
-    rating_pred[:, input_list] = 0
+    rating_pred[:, input_list] = -np.Inf
 
-    split = max(top_k**2, 100)
     # sort & topk
-    ind = np.argpartition(rating_pred, -split)[:, -split:]
-    arr_ind = rating_pred[np.arange(len(rating_pred))[:, None], ind]
-    arr_ind_argsort = np.argsort(arr_ind)[np.arange(len(rating_pred)), ::-1]
+    pred_list = np.argsort(rating_pred)[np.arange(len(rating_pred)), ::-1]
+    # ind = np.argpartition(rating_pred, -split)[:, -split:]
+    # arr_ind = rating_pred[np.arange(len(rating_pred))[:, None], ind]
+    # arr_ind_argsort = np.argsort(arr_ind)[np.arange(len(rating_pred)), ::-1]
 
-    pred_list = ind[
-        np.arange(len(rating_pred))[:, None], arr_ind_argsort
-    ]
+    # pred_list = ind[
+    #     np.arange(len(rating_pred))[:, None], arr_ind_argsort
+    # ]
 
     output_list = []
     for item in pred_list[0]:
-        output_list.append(int(item_id2token[item]))
-    result = product_si.loc[product_si['item_id'].isin(output_list)]
+        try:
+            output_list.append(int(item_id2token[item]))
+        except:
+            pass
     # if filters and (not filters.price_s and filters.price_e == LIMIT and filters.category == DEFAULT_CATEGORY):
     
-    df_ = result.loc[(result['selling_price'] >= filters.price_s) & (result['selling_price'] <= filters.price_e) &
-                (result['category0'].isin(filters.category))]
+    df_ = product_si.loc[(product_si['selling_price'] >= filters.price_s) & (product_si['selling_price'] <= filters.price_e) &
+                (product_si['category0'].isin(filters.category))]
     cnt = 0
-    tmp = df_['item_id'].tolist()
-    real_result = []
+    item_ids, img_urls, original_prices, selling_prices, star_avgs, brands, titles = [], [], [], [], [], [], []
+    pattern1 = r'\([^)]*\)'
+    pattern2 = r'\[[^)]*\]'
+    # titles = titles.apply(lambda x: re.sub(pattern1, '', x))
+    # titles = titles.apply(lambda x: re.sub(pattern2, '', x))
     for id in output_list:
-        if id in tmp:
-            real_result.append(id)
+        if id in df_['item_id'].tolist():
+            id_info = df_[df_['item_id']==id]
+            item_ids.append(id_info['item_id'].values[0])
+            img_urls.append(id_info['img_main'].values[0])
+            original_prices.append(id_info['original_price'].values[0])
+            selling_prices.append(id_info['selling_price'].values[0])
+            star_avgs.append(id_info['review_avg'].values[0])
+            brands.append(id_info['brand'].values[0])
+            titles.append(re.sub(pattern2, '', re.sub(pattern1, '', id_info['title'].values[0])))
             cnt += 1
         if cnt == top_k:
             break
-    df_ = df_.loc[df_['item_id'].isin(real_result)]
-    item_ids = df_['item_id'].tolist()
-    img_urls = df_['img_main'].tolist()
-    original_prices = df_['original_price'].tolist()
-    selling_prices = df_['selling_price'].tolist()
-    star_avgs = df_['review_avg'].tolist()
-    brands = df_['brand'].tolist()
-    titles = df_['title']
-    
-    pattern1 = r'\([^)]*\)'
-    pattern2 = r'\[[^)]*\]'
-    titles = titles.apply(lambda x: re.sub(pattern1, '', x))
-    titles = titles.apply(lambda x: re.sub(pattern2, '', x))
-    titles = titles.tolist()
 
     result__ = []
     for idx, val in enumerate(zip(item_ids, img_urls, original_prices, selling_prices, titles, star_avgs, brands)):
