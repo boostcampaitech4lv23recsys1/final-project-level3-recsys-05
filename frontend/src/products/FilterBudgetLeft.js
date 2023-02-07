@@ -26,15 +26,15 @@ function FilterBudgetLeft({ getFilter }) {
             { categories.map((cat,index) => {
                 return (
                   <>
-                  <button value={ cat } className='deactivate category_item' key={`category${index}`}onClick={ (event) => {
+                  <button value={ cat } className='btn btn-outline-secondary' key={`category${index}`} onClick={ (event) => {
                     const ca = event.target.value;
                     const click = event.target.className;
-                    if(click === 'activate category_item') {
+                    if(click === 'btn btn-secondary') {
                       setCategory(category.filter(c => c !== ca));
-                      event.target.className = 'deactivate category_item';
+                      event.target.className = 'btn btn-outline-secondary';
                     } else {
                       setCategory([...category, ca]);
-                      event.target.className = 'activate category_item';
+                      event.target.className = 'btn btn-secondary';
                     }
                   } }>{ cat }</button>
                   </>
@@ -42,9 +42,9 @@ function FilterBudgetLeft({ getFilter }) {
             })}
             </div>
           <br/>
+          <button className="btn btn-secondary apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
         </div>
       </li>
-    <button className="btn btn-dark apply" onClick={ () => getFilter(budget, category) }>Apply</button>
     </ul>
   </>
   );

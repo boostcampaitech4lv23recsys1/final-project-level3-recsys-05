@@ -10765,9 +10765,18 @@ textarea.form-control-lg {
   text-align: center;
 }
 
-#cloudCon {
+#cloudConPrev {
   text-align: center;
 }
+
+#cloudConNext {
+  text-align: center;
+}
+
+.wordcloud {
+  width: 100%;
+}
+
 .historys {
   display: grid;	
   row-gap: 10px;
@@ -10805,4 +10814,8 @@ textarea.form-control-lg {
     color: #ff6161 !important;
     fill: #ff6161 !important;
     stroke: #ff6161 !important;
+}
+
+.swiper-button-disabled {
+  visibility: hidden;
 }

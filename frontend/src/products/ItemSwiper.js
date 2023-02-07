@@ -5,11 +5,17 @@ import SwiperCore, { Navigation } from "swiper";
 import Product from "./Product";
 import { useState, useEffect } from "react";
 
+import "swiper/swiper.scss";
+import "swiper/components/navigation/navigation.scss";
+import "swiper/components/pagination/pagination.scss";
+
 function ItemSwiper(props) {
   const [ clicked, setClicked ] = useState([])
   const wishProducts = props.wishProducts;
   const products = props.products;
   const field = props.field;
+
+  SwiperCore.use([Navigation]);
 
   useEffect(() => {
     const temp = []
@@ -18,6 +24,8 @@ function ItemSwiper(props) {
     })
     setClicked(temp)
   }, [wishProducts])
+
+  console.log(document.getElementsByClassName('swiper')[0])
 
   return (
     <>

@@ -36,13 +36,12 @@ function ProductList() {
     .then(response => response.data)
     .then(data => {
       setWishProducts(data);
-      axios.post("http://115.85.181.95:30002/recommend/personal?top_k=10", {'input_list':data, 'filters':filter})      
+      axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10&user_id=" + logintoken, {'input_list':data, 'filters':filter})      
       .then( response => response.data)
       .then( data => {
         setProducts(data);
       })
       .catch( error => console.log(error) );
-      console.log(wishProducts);
     })
     .catch((error) => console.log(error));
 
@@ -52,14 +51,14 @@ function ProductList() {
     })
     .catch((error) => console.log(error));
 
-    axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, filter)      
+    axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, filter)      
     .then( response => response.data)
     .then( data => {
       setTotals(data);
     })
     .catch( error => console.log(error) );
 
-    axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${logintoken}&top_k=10`, filter)      
+    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${logintoken}&top_k=10`, filter)      
     .then( response => response.data)
     .then( data => {
       setSimusers(data);
@@ -92,7 +91,7 @@ function ProductList() {
         .then(response => response.data)
         .then(data => {
           setWishProducts(data);
-          axios.post(`http://115.85.181.95:30002/recommend/personal?top_k=10`, {'input_list':data, 'filters':d})
+          axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, {'input_list':data, 'filters':d})
           .then( response => response.data )
           .then( data => {
             setProducts(data);
@@ -102,14 +101,14 @@ function ProductList() {
         .catch( error => console.log(error) );
 
 
-        axios.post(`http://115.85.181.95:30002/recommend/normal?k=10`, d)
+        axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, d)
         .then( response => response.data )
         .then( data => {
           setTotals(data);
         })
         .catch( error => console.log(error) );
 
-        axios.post(`http://115.85.181.95:30002/recommend/similar/user?user_id=${logintoken}&top_k=10`, d)
+        axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${logintoken}&top_k=10`, d)
         .then( response => response.data )
         .then( data => {
           setSimusers(data);

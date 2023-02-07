@@ -67,7 +67,6 @@ function FilterMenuLeft({ getFilter }) {
           <button className="btn btn-secondary apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
         </div>
       </li>
-    <button className="btn btn-dark apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
     </ul>
   </>
   );
