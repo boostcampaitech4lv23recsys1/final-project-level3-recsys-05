@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import loading from '../landing/loading.gif';
 import Heart from '../products/Heart';
+import MyChart from './MyChart';
 
 // 상세 제품 페이지
 function Detail() {
@@ -28,6 +29,10 @@ function Detail() {
         .then(data => {
           setWishProducts(data);
           setClicked(data.includes(item_id));
+          axios.post(`http://49.50.172.201:30002/recommend/similar/review?item_id=${item_id}&top_k=${10}`, data)
+          .then(response => response.data)
+          .then(data => setAvg(data))
+          .catch(error => console.log(error))
         })
         .catch( error => console.log(error) );
 
@@ -68,7 +73,7 @@ function Detail() {
         //     ReactDOM.render(<Example data={data} />, document.getElementById('cloudConNext'))
         // })
         // .catch( error => console.log(error) );
-
+        
 
         return () => {
         controller.abort();
@@ -102,11 +107,6 @@ function Detail() {
         //     ReactDOM.render(<Example data={data} />, document.getElementById('cloudConNext'))
         // })
         // .catch( error => console.log(error) );
-
-        axios.post('http://localhost:8000/review/'+item_id, wishProducts)
-        .then(response => response.data)
-        .then(data => setAvg(data))
-        .catch(error => console.log(error))
     }
     
     return (
@@ -121,13 +121,20 @@ function Detail() {
                             <InfoBox>
                                 <small>{product.brand}</small>
                                 <h1>{product.title}</h1>
+                                <div className="row">
+                                <div className="col-7">
                                 <StarRate star = {product.review_avg} />
                                 <div style={{"marginTop": "13px"}}>{product.wish_count} 명이 찜 했어요!</div>
+                                </div>
+                                <div className="col-3">유사한 유저의<br/>만족한 비율</div>
+                                <div className='col-2'><MyChart avg={ avg }/></div>
+                                </div>
                                 <hr></hr>
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
-
+                                
+                                
                                 <PriceBox>
                                     <span>
                                         {[product.selling_price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -146,7 +153,6 @@ function Detail() {
                                     <span>배송비 포함 <strong>{(product.selling_price + product.delivery_fee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong>원</span>
                                     </span>
                                 </TotalPrice>
-                                <p>{`유저와 비슷한 유저가 평가한 점수입니다.\n ${parseInt(avg*100)}%`}</p>
                                 <ButtonBox>
                                     <CartBtn>
                                         <Heart liked={ clicked } id={ item_id }/>
