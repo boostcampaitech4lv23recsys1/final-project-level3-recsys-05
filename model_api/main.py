@@ -359,9 +359,23 @@ def get_review_cls(item_id: int):
 
 @app.get('/user_info', description='get user_info')
 def get_user_info(user_id: int, input_list: List[int]):
+    result_dict = {category : 0 for category in ['생활용품', '가구', '조명', '데코·식물', '패브릭', '수납·정리', '공구·DIY', '주방용품']}
+
     if user_id != -1:
-        input_list = data2.loc[data2['user_id:token'] == user_id]
-    
-    return
+        df = data.loc[data['user_id:token'] == 520957, ['item_id:token', 'star_avg:float']]
+        df.columns = ['item_id', 'star_avg']
+        input_list = df['item_id'].tolist() + input_list
+        item_info = product_si.loc[product_si['item_id'].isin(input_list), ['item_id', 'category0']]
+        merged = pd.merge(df, item_info, how='left', on='item_id')
+        
+        category_cnt = merged['category0'].value_counts()
+        for category, cnt in zip(category_cnt.index, category_cnt.values):
+            result_dict[category] = cnt
+    else:
+        category_cnt = product_si.loc[product_si['item_id'].isin(input_list), 'category0'].value_counts()
+        for category, cnt in zip(category_cnt.index, category_cnt.values):
+            result_dict[category] = cnt
+
+    return result_dict
 # if __name__ == '__main__':
 #     uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
