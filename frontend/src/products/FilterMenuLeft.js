@@ -7,8 +7,9 @@ function FilterMenuLeft({ getFilter }) {
   const categories = ['가구', '주방용품', '수납·정리', '생활용품', '패브릭', '공구·DIY', '데코·식물', '조명'];
 
   return (
+    <>
     <ul className="list-group list-group-flush rounded">
-      <li className="list-group-item">
+      <li className="list-group-item hideMenu">
         <h5 className="mt-1 mb-2">Price Range</h5>
         <div className="d-grid d-block mb-3">
           <div className="form-floating mb-2">
@@ -66,7 +67,9 @@ function FilterMenuLeft({ getFilter }) {
           <button className="btn btn-secondary apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
         </div>
       </li>
+    <button className="btn btn-dark apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
     </ul>
+  </>
   );
 }
 

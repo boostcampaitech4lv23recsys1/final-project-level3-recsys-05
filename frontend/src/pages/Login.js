@@ -21,9 +21,8 @@ function Login(){
             email: email,
             password: password,
           });
-          console.log(response.data)
           localStorage.setItem("token", response.data);
-          console.log(localStorage.getItem("token"))
+
           history.push('/products');
           window.location.reload();
         } catch (e) {

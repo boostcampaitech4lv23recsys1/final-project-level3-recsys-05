@@ -6256,6 +6256,7 @@ textarea.form-control-lg {
 
 .d-none {
   display: none !important;
+  height: 100%;
 }
 
 .shadow {
@@ -10791,6 +10792,10 @@ textarea.form-control-lg {
 .filterbar {
   position: sticky;
   top: 10%;
+}
+
+.link {
+  text-decoration: none;
 }
 
 .swiper-button-next,
