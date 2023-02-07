@@ -25,8 +25,6 @@ function ItemSwiper(props) {
     setClicked(temp)
   }, [wishProducts])
 
-  console.log(document.getElementsByClassName('swiper')[0])
-
   return (
     <>
       <Swiper

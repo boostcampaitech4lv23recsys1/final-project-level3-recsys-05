@@ -47,12 +47,12 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${5}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${5}&label=${2}`,
             // responseType:'blob'
             })
         .then(response => response.data)
         .then(data => {
-            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} class="wordcloud" alt='wordcloudPrev'/>
+            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
             ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
         })
         .catch( error => console.log(error) );
@@ -86,7 +86,7 @@ function Detail() {
             })
         .then(response => response.data)
         .then(data => {
-            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} class="wordcloud" alt='wordcloudPrev'/>
+            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
             ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
         })
         .catch( error => console.log(error) );

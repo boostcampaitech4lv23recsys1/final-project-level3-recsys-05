@@ -49,7 +49,6 @@ function ProductList() {
           .catch( error => console.log(error) );
       })
       .catch( error => console.log(error) );
-      console.log(wishProducts);
     })
     .catch((error) => console.log(error));
 
@@ -100,7 +99,7 @@ function ProductList() {
         .then(response => response.data)
         .then(data => {
           setWishProducts(data);
-          axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10`, {'input_list':data, 'filters':d})
+          axios.post(`http://115.85.181.95:30003/recommend/personal?top_k=10&user_id=${logintoken}`, {'input_list':data, 'filters':d})
           .then( response => response.data )
           .then( data => {
             setProducts(data);
@@ -108,7 +107,6 @@ function ProductList() {
           .catch( error => console.log(error) );
         })
         .catch( error => console.log(error) );
-
 
         axios.post(`http://115.85.181.95:30003/recommend/normal?k=10`, d)
         .then( response => response.data )

@@ -42,7 +42,7 @@ function FilterBudgetLeft({ getFilter }) {
             })}
             </div>
           <br/>
-          <button className="btn btn-secondary apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
+          <button className="btn btn-secondary apply" onClick={ () => getFilter(budget, category) }>Apply</button>
         </div>
       </li>
     </ul>
