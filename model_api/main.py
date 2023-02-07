@@ -262,7 +262,6 @@ def get_similar_item(item_id: int, top_k: int):
 
     return get_item_info(df=result, k=top_k)
 
-
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
 def rec_topk(filters : Filters, input_list: List[int], top_k: int, user_id: int):
     print(f"personal filters: {filters}")
