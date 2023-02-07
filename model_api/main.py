@@ -142,7 +142,7 @@ def get_item_info(df, filters=None, k=10):
 
     return result
 
-def review(user_id: int, input_list: List[int]) :
+def review(input_list: List[int]) :
     aimodel = AlternatingLeastSquares()
     aimodel = aimodel.load('model/model.npz')
 
@@ -230,11 +230,11 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
         input_list = data2.loc[data2['user_id:token'] == user_id, 'item_id:token'].tolist() + input_list
         print("**" * 10)
         print(f"input_list : {input_list}")
-        
+
     print(f"user : {filters}")
     # response = requests.request(method='get', url=f'http://34.64.87.78:8000/gogo/{user_id}')
     # user_latent = response.json()
-    user_latent = review(user_id, input_list)
+    user_latent = review(input_list)
     print(user_latent)
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
