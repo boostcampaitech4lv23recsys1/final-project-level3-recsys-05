@@ -357,5 +357,11 @@ def get_review_cls(item_id: int):
             'neg_ratio' : neg_ratio
            }
 
+@app.get('/user_info', description='get user_info')
+def get_user_info(user_id: int, input_list: List[int]):
+    if user_id != -1:
+        input_list = data2.loc[data2['user_id:token'] == user_id]
+    
+    return
 # if __name__ == '__main__':
 #     uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
