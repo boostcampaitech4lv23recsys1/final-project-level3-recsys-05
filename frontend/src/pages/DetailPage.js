@@ -82,7 +82,7 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}&label=2`,
             })
         .then(response => response.data)
         .then(data => {

@@ -1,2 +1,4 @@
 RecBole/
 fastapi_test/
+model/
+model_api/
