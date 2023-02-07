@@ -87,7 +87,7 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}&label=2`,
             })
         .then(response => response.data)
         .then(data => {
@@ -290,7 +290,7 @@ const CartBtn = styled.button`
     border-radius: 4px;
     font-weight: bold;
     width: 49%;
-    background-color: rgb(255, 240, 239);
+    background-color: #d9cfe6;
     color: rgb(255, 111, 97);
     margin: 0;
     padding: 0;
@@ -305,7 +305,7 @@ const BuyBtn = styled.button`
     border-radius: 4px;
     font-weight: bold;
     width: 49%;
-    background-color: rgb(255, 111, 97);
+    background-color: #967cb9;
     color: rgb(255, 255, 255);
     margin: 0;
     padding: 0;
