@@ -316,12 +316,18 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int, user_id: int)
     # return get_item_info(result, top_k)
 
 @app.get('/review_cls', description='get pos and neg ratio')
-def get_review_cls():
+def get_review_cls(item_id: int):
     item_label_cnt = reivew_classification.groupby(by=['item_id', 'label'], as_index=False).count()
-    per_item = item_label_cnt.loc[item_label_cnt['item_id'] == 449, 'review']
+    per_item = item_label_cnt.loc[item_label_cnt['item_id'] == item_id, 'review']
     total = per_item.sum()
     pos = per_item[0]
-    neg = per_item[1]
+    pos_ratio = round(pos / total, 2)
+    neg_ratio = 1-pos_ratio
+
+    return {
+            'pos_ratio' : pos_ratio,
+            'neg_ratio' : neg_ratio
+           }
 
 # if __name__ == '__main__':
 #     uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
