@@ -53,7 +53,7 @@ reivew_classification = pd.read_csv("data/review_classification.csv")
 
 DEFAULT_CATEGORY = product_si['category0'].unique().tolist()
 
-icon = Image.open('data/house.png')
+icon = Image.open('data/UNZYP_mask.png')
 mask = Image.new("RGB", icon.size, (255,255,255))
 mask.paste(icon,icon)
 mask = np.array(mask)
@@ -102,9 +102,6 @@ def from_image_to_bytes(img):
     return decoded
 
 def get_item_info(df, filters=None, k=10):
-    # print(df)
-    print(filters)
-    print(k)
     if filters:
         df_ = df.loc[(df['selling_price'] >= filters.price_s) & (df['selling_price'] <= filters.price_e) &
                     (df['category0'].isin(filters.category))]
@@ -146,15 +143,33 @@ def test():
     return 'hello this is the main page'
 
 @app.get('/wordcloud/', description='get wordcloud')
-def get_wordcloud(item_id: int = Query(...), split: int = Query(...)):
-    try:
-        with open(f'data/wc_data/{item_id}_{split}.pickle', 'rb') as f:
-            data = pickle.load(f)
+def get_wordcloud(item_id: int = Query(...), split: int = Query(...), label: int = Query(...)):
+    '''
+    positive and negative wordclouds are called by split = 0
+    label 0 for negative 1 for positive
+        ex ) item_id : 12345, split : 0, label : 0 or 1
+
+    if you want to get star avg wordcloud,
+    set split 1 to 5, label 2
+        ex ) item_id : 12345, split : 1 or 2 or 3 or 4 or 5, label = 2
         
-        for word in data:
-            if len(word) < 2: del(data['word'])
-    except:
-        return '리뷰가 존재하지 않습니다.'
+    '''
+    if not split:
+        try: 
+            with open(f'data/wc_pos_neg_data/{item_id}_{label}.pickle', 'rb') as f:
+                data = pickle.load(f)
+        except:
+            return '리뷰가 존재하지 않습니다.'
+
+    if label == 2:
+        try:
+            with open(f'data/wc_data/{item_id}_{split}.pickle', 'rb') as f:
+                data = pickle.load(f)
+            
+            for word in data:
+                if len(word) < 2: del(data['word'])
+        except:
+            return '리뷰가 존재하지 않습니다.'
     gen = wc.generate_from_frequencies(data)
     img = from_image_to_bytes(gen.to_image())
     return JSONResponse(img)
@@ -186,17 +201,19 @@ def get_normal_recommendation(filters : Filters, k : int):
 
     return get_item_info(recommend, filters, k)
 
-@app.post('/recommend/similar/user/', description='get similar user')
+@app.post('/recommend/similar/user', description='get similar user')
 def get_similar_user(filters : Filters, user_id: int, top_k: int):
     print(f"user : {filters}")
-    user_latent = requests.request(method='get', url=f'34.64.87.78:8000/gogo/{user_id}')
+    response = requests.request(method='get', url=f'http://34.64.87.78:8000/gogo/{user_id}')
+    user_latent = response.json()
+    print(user_latent)
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
     ann.load('model/annoy.ann')
-    ann.add_item(0, np.array(user_latent))
-    # an.save('model/annoy.ann')
+    # ann.add_item(0, np.array(user_latent))
+    # ann.save('model/annoy.ann')
     # recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k**2)
-    recommend = ann.get_nns_by_item(0, n=top_k**2);
+    recommend = ann.get_nns_by_vector(user_latent, n=top_k**2);
     recommend = [vec2user[rec] for rec in recommend]
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
@@ -218,7 +235,16 @@ def get_similar_item(item_id: int, top_k: int):
 
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
-def rec_topk(filters : Filters, input_list: List[int], top_k: int):
+def rec_topk(filters : Filters, input_list: List[int], top_k: int, user_id: int):
+    print(f"personal filters: {filters}")
+    print(f"personal filters: {input_list}")
+    print(f"personal filters: {top_k}")
+    print(f"personal filters: {user_id}")
+    if user_id != -1:
+        input_list = data2.loc[data2['user_id:token'] == user_id, 'item_id:token'].tolist() + input_list
+        print("**" * 10)
+        print(f"input_list : {input_list}")
+    
     input_list = [token2item_id[str(i)] for i in input_list]
     
     model.eval()
@@ -297,5 +323,5 @@ def get_review_cls():
     pos = per_item[0]
     neg = per_item[1]
 
-if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
+# if __name__ == '__main__':
+#     uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
