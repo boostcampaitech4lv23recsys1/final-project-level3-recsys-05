@@ -8,3 +8,4 @@ model_api/model/annoy.ann
 model_api/log
 model_api/nohup.out
 model/
+nohup.out
