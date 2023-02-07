@@ -10,6 +10,7 @@ function Product(props) {
   const Image = product.img_urls;
   const brand = product.brands;
   const field = props.field;
+  const wish = props.wish;
   
   return (
       <div className={"card shadow-sm card" + field}>
@@ -32,7 +33,7 @@ function Product(props) {
           <p className="card-text text-center text-muted mb-0 price">{ '￦' + [price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }</p>
           <StarRate className="card-text text-center text-muted mb-0 star" star={ star } id={ id }/>
           <div className="d-grid d-block text-center">
-            <Heart liked={ props.wish } id={ id }/>
+            <Heart liked={ wish } id={ id }/>
           </div>
         </div>
       </div>
