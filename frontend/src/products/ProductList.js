@@ -13,6 +13,7 @@ function ProductList() {
   const [ simusers, setSimusers ] = useState([]);
   const [ wishProducts, setWishProducts ] = useState([]);
   const [ myusername, setMyusername ] = useState("");
+  const [ myohouse, setMyOhouse ] =useState();
 
   const defaultFilter = {
     "price_s": 0,
@@ -32,22 +33,30 @@ function ProductList() {
     const controller = new AbortController();
     const logintoken = localStorage.getItem("token");
     const filter = defaultFilter;
+    
     axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
     .then(response => response.data)
     .then(data => {
       setWishProducts(data);
-      axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10&user_id=" + logintoken, {'input_list':data, 'filters':filter})      
-      .then( response => response.data)
-      .then( data => {
-        setProducts(data);
+      axios.get("http://34.64.87.78:8000/username/" + logintoken)
+      .then(resp => {
+        setMyusername(resp.data[0]);
+        axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10&user_id=" + (resp.data[1]!=0 ? resp.data[1] : -1).toString() , {'input_list':data, 'filters':filter})      
+          .then( response => response.data)
+          .then( datum => {
+            setProducts(datum);
+          })
+          .catch( error => console.log(error) );
       })
       .catch( error => console.log(error) );
+      console.log(wishProducts);
     })
     .catch((error) => console.log(error));
 
     axios.get("http://34.64.87.78:8000/username/" + logintoken)
     .then(resp => {
-      setMyusername(resp.data);
+      setMyusername(resp.data[0]);
+      setMyOhouse(resp.data[1]);
     })
     .catch((error) => console.log(error));
 

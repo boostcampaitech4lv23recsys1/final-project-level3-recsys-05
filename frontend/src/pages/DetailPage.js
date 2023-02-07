@@ -47,7 +47,7 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${5}&label=${2}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${5}`,
             // responseType:'blob'
             })
         .then(response => response.data)
@@ -82,7 +82,7 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${value}&label=${2}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}`,
             })
         .then(response => response.data)
         .then(data => {
@@ -171,7 +171,7 @@ function Detail() {
                     <div id='cloudConPrev'></div>
                     {/* <div id='cloudConNext'></div> */}
                     <br/>
-                    <h3>유사한 물품</h3>
+                    <h3 style={{textIndent: "20px"}}>유사한 상품</h3>
                     <br/>
                     <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
                 </Container>
