@@ -16,6 +16,7 @@ function Detail() {
     const [ similar, setSimilar ] = useState([]);
     const [ wishProducts, setWishProducts ] = useState([]);
     const [clicked, setClicked] = useState(false);
+    const [activated, setActivated] = useState(5);
     const theitemid = useParams()['itemid'];
   
     const handleClick = () => {
@@ -57,7 +58,7 @@ function Detail() {
         .catch( error => console.log(error) );
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${1}`,
+            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${5}`,
             // responseType:'blob'
             })
         .then(response => response.data)
@@ -72,15 +73,7 @@ function Detail() {
     }, []);
 
     const onClickButton = (value) => {
-        const buttons = document.getElementsByClassName("starButton");
-        [0,1,2,3,4].map((i) => {
-            const button = buttons[i];
-            if(button.value === value) {
-                button.setAttribute('class', 'activate starButton');
-            } else {
-                button.setAttribute('class', 'deactivate starButton');
-            }
-        })
+        setActivated(value)
         ReactDOM.render(<><br/><img src={loading}></img></>, document.getElementById('cloudCon'));
         axios({            
             method:'GET',
@@ -144,17 +137,10 @@ function Detail() {
                     </ItemBox>
                     <br/>
                     <div className = 'filterStar d-flex flex-row'>
-                        {[1,2,3,4,5].map( (i) =>{
-                            if(i === "1") {
-                                return (
-                                    <button value={ i } key={'button'+i} className="activate starButton" onClick={(event) => {               
-                                        onClickButton(event.target.value);
-                                    }}>{ `${i}점` }</button>
-                                )
-                            }
+                        {[5, 4, 3, 2, 1].map( (i) =>{
                             return (
-                                <button value={ i } key={'button'+i} className="deactivate starButton" onClick={(event) => {               
-                                    onClickButton(event.target.value);
+                                <button value={ i } key={i} className={`btn ${activated === i ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => {               
+                                    onClickButton(i);
                                 }}>{ `${i}점` }</button>
                             )  
                         })}

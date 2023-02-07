@@ -53,7 +53,7 @@ function History() {
       </div>
       {/* more button */}
       <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}>
-      <a class="btn btn-secondary btn" style={{backgroundColor: "red"}} role="button" onClick={() => {
+      <a class="btn btn-secondary btn m-1" role="button" onClick={() => {
         axios.post('http://115.85.181.95:30003/recommend/normal?k=4', {signal:controller.signal})
         .then((resp) => {
           console.log(resp.data)
@@ -64,7 +64,7 @@ function History() {
           console.log(e);
         });
       }}>더보기</a>
-      <a class="btn btn-secondary btn" role="button" onClick={() => {
+      <a class="btn btn-secondary btn m-1" role="button" onClick={() => {
         window.location.replace('/#/login/');
       }}>제출하기</a>
       </div>

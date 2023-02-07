@@ -12,7 +12,7 @@ function Landing() {
       <ScrollToTopOnMount />
       <div style={{alignItems: 'center', justifyContent: 'center', display: 'flex'}}><Logo src={BannerZero}/></div>
         <div className="d-flex justify-content-center">
-          <Link to="/login" className="btn btn-primary" replace>
+          <Link to="/login" className="btn btn-secondary" replace>
             로그인
           </Link>
       </div>

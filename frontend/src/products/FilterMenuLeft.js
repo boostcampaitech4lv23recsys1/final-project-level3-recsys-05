@@ -36,7 +36,7 @@ function FilterMenuLeft({ getFilter }) {
             { categories.map((cat,index) => {
                 return (
                   <>
-                  <button value={ cat } className='deactivate category_item' key={`category${index}`}onClick={ (event) => {
+                  {/* <button value={ cat } className='deactivate category_item' key={`category${index}`} onClick={ (event) => {
                     const ca = event.target.value;
                     const click = event.target.className;
                     if(click === 'activate category_item') {
@@ -46,13 +46,24 @@ function FilterMenuLeft({ getFilter }) {
                       setCategory([...category, ca]);
                       event.target.className = 'activate category_item';
                     }
+                  } }>{ cat }</button> */}
+                  <button value={ cat } className='btn btn-outline-secondary' key={`category${index}`} onClick={ (event) => {
+                    const ca = event.target.value;
+                    const click = event.target.className;
+                    if(click === 'btn btn-secondary') {
+                      setCategory(category.filter(c => c !== ca));
+                      event.target.className = 'btn btn-outline-secondary';
+                    } else {
+                      setCategory([...category, ca]);
+                      event.target.className = 'btn btn-secondary';
+                    }
                   } }>{ cat }</button>
                   </>
                 )
             })}
             </div>
           <br/>
-          <button className="btn btn-dark apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
+          <button className="btn btn-secondary apply" onClick={ () => getFilter(minprice, maxprice, category) }>Apply</button>
         </div>
       </li>
     </ul>
