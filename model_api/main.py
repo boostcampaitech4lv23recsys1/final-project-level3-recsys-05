@@ -143,7 +143,7 @@ def test():
     return 'hello this is the main page'
 
 @app.get('/wordcloud/', description='get wordcloud')
-def get_wordcloud(item_id: int = Query(...), split: int = Query(...), label: int = Query(...)):
+async def get_wordcloud(item_id: int = Query(...), split: int = Query(...), label: int = Query(...)):
     '''
     positive and negative wordclouds are called by split = 0
     label 0 for negative 1 for positive
@@ -186,7 +186,7 @@ def get_wordcloud(item_id: int = Query(...), split: int = Query(...), label: int
     return '리뷰가 존재하지 않습니다.'
 
 @app.post('/recommend/normal', description='get normal recommendation')
-def get_normal_recommendation(filters : Filters, k : int):
+async def get_normal_recommendation(filters : Filters, k : int):
 
     star_avg_df = data2.groupby(by=['item_id:token'], as_index=False)['star_avg:float'].mean()
     star_avg_items = star_avg_df.loc[star_avg_df['star_avg:float'] > 4.63, 'item_id:token'].tolist()
