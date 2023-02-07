@@ -37,7 +37,7 @@ function Detail() {
         })
         .catch( error => console.log(error) );
 
-        axios.post(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
+        axios.post(`http://115.85.181.95:30003/recommend/similar/item?item_id=${item_id}&top_k=10`)
         .then(response => response.data)
         .then(data => {
             setSimilar(data);
@@ -46,7 +46,7 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${5}`,
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${5}`,
             // responseType:'blob'
             })
         .then(response => response.data)
@@ -67,7 +67,7 @@ function Detail() {
         ReactDOM.render(<><br/><img src={loading}></img></>, document.getElementById('cloudCon'));
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}`,
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${value}`,
             })
         .then(response => response.data)
         .then(data => {
@@ -140,7 +140,7 @@ function Detail() {
                     </div>
                     <div id='cloudCon'></div>
                     <br/>
-                    <h3>유사한 물품</h3>
+                    <h3 style={{textIndent: "20px"}}>유사한 상품</h3>
                     <br/>
                     <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
                 </Container>
