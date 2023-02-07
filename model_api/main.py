@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 from fastapi import FastAPI
 from fastapi import FastAPI, Query, Body
 from fastapi.responses import JSONResponse
@@ -23,6 +24,9 @@ from wordcloud import WordCloud
 from collections import Counter
 from konlpy.tag import Okt
 from PIL import Image
+from scipy import sparse
+from implicit.als import AlternatingLeastSquares
+
 sys.path.append('/opt/ml/input/final-project-level3-recsys-05/RecBole/')
 from recbole.quick_start import load_data_and_model
 
@@ -138,6 +142,25 @@ def get_item_info(df, filters=None, k=10):
 
     return result
 
+def review(user_id: int, input_list: List[int]) :
+    aimodel = AlternatingLeastSquares()
+    aimodel = aimodel.load('model/model.npz')
+
+    with open('model/item2vec.pickle', 'rb') as f :
+        item2vec = pickle.load(f)
+
+    itemlist2vec = [item2vec[item] for item in input_list]
+
+    users = [0 for _ in itemlist2vec]
+    items = [item for item in itemlist2vec]
+    inter = [1 for _ in itemlist2vec]
+    
+    matrix = sparse.csr_matrix((inter, (users, items)))
+
+    latent = aimodel.recalculate_user(0, matrix)
+
+    return latent.tolist()
+
 @app.get('/')
 def test():
     return 'hello this is the main page'
@@ -202,10 +225,16 @@ async def get_normal_recommendation(filters : Filters, k : int):
     return get_item_info(recommend, filters, k)
 
 @app.post('/recommend/similar/user', description='get similar user')
-def get_similar_user(filters : Filters, user_id: int, top_k: int):
+def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: List[int]):
+    if user_id != -1:
+        input_list = data2.loc[data2['user_id:token'] == user_id, 'item_id:token'].tolist() + input_list
+        print("**" * 10)
+        print(f"input_list : {input_list}")
+        
     print(f"user : {filters}")
-    response = requests.request(method='get', url=f'http://34.64.87.78:8000/gogo/{user_id}')
-    user_latent = response.json()
+    # response = requests.request(method='get', url=f'http://34.64.87.78:8000/gogo/{user_id}')
+    # user_latent = response.json()
+    user_latent = review(user_id, input_list)
     print(user_latent)
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
