@@ -158,8 +158,8 @@ def review(input_list: List[int]) :
     matrix = sparse.csr_matrix((inter, (users, items)))
 
     latent = aimodel.recalculate_user(0, matrix)
-
-    return latent.tolist()
+    # print(latent)
+    return latent[0]
 
 @app.get('/')
 def test():
@@ -236,6 +236,7 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
     # user_latent = response.json()
     user_latent = review(input_list)
     print(user_latent)
+    print(type(user_latent))
     import annoy
     ann = annoy.AnnoyIndex(100, 'angular')
     ann.load('model/annoy.ann')
