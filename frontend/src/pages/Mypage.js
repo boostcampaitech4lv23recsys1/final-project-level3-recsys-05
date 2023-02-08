@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import StarRate from "../products/StarRate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Mychart from './Mychart'
 
 
 	
@@ -30,6 +31,9 @@ function Mypage() {
         {/* <p class="lead">반가워요</p>	 */}
         <hr class="my-4" />	
       </div>	
+      <div>
+          <Mychart/>
+      </div>
       {/* card contents */}	
       <div className='container'>	
         <div className='historys'>	
@@ -52,18 +56,6 @@ function Mypage() {
     </div>	
 
   );	
-}	
-	
-function Card(props) {	
-  return (	
-    <>	
-      <div className='col-md-4'>	
-        <img src={ props.thepd.image_url } width="100%" />	
-        <h3>{ props.thepd.title }</h3>	
-        <p>{ props.thepd.review_avg } & { props.thepd.selling_price }</p>	
-      </div>	
-    </>	
-  )	
 }	
 
 

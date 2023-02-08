@@ -47,6 +47,13 @@ function ProductList() {
             setProducts(datum);
           })
           .catch( error => console.log(error) );
+
+        axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${(resp.data[1]!=0 ? resp.data[1] : -1).toString()}&top_k=10`, {'input_list':data, 'filters':filter})      
+          .then( response => response.data)
+          .then( data => {
+            setSimusers(data);
+          })
+          .catch( error => console.log(error) );
       })
       .catch( error => console.log(error) );
     })
@@ -66,12 +73,7 @@ function ProductList() {
     })
     .catch( error => console.log(error) );
 
-    axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${logintoken}&top_k=10`, filter)      
-    .then( response => response.data)
-    .then( data => {
-      setSimusers(data);
-    })
-    .catch( error => console.log(error) );
+    
 
     // wish list gcp 서버에서 받아오기
     return () => {
@@ -129,33 +131,10 @@ function ProductList() {
     }
   }
 
-  function getFilterBudget(budget, category) {
-    if(budget >= 0) {
-      const d = {"budget":budget, "category":category};
-      if(category.length === 0) {
-        d.category = defaultFilter.category;
-      }
-      
-      const logintoken = localStorage.getItem("token");
-      axios.get("http://34.64.87.78:8000/wishes/" + logintoken)
-      .then(response => {
-        setWishProducts(response.data);
-      })
-      .catch( error => console.log(error) );
-
-      axios.post('http://localhost:8000/budget/10000', {'input_list':wishProducts, 'category': category})
-      .then(response => response.data)
-      .then(data => setProducts(data))
-      .catch(error => console.log(error))
-    } else {
-      alert("예산이 입력되지 않았습니다.");
-    }
-  }
 
   return (
     <div className="container mt-5 py-4 px-xl-5">
       <ScrollToTopOnMount />
-
       <br/>
 
       <div className="row mb-3 d-block d-lg-none">
@@ -209,7 +188,7 @@ function ProductList() {
             <FilterMenuLeft getFilter = { getFilter }/>
           </div>
           
-          <div className="accordion-item">
+          {/* <div className="accordion-item">
             <h2 className="accordion-header" id="headingOne">
               <button
                 className="accordion-button fw-bold collapsed"
@@ -226,7 +205,7 @@ function ProductList() {
           <div className="border rounded shadow-sm accordion-collapse collapse" 
               id="collapseFilterBudget">
             <FilterBudgetLeft getFilter = { getFilterBudget }/>
-          </div>
+          </div> */}
         </div>
         <div className="col-lg-9">
           <div className="d-flex flex-column h-100">
