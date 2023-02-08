@@ -106,7 +106,7 @@ UNZYP 웹 서비스를 통해 다양한 접근으로 유저가 선호할 만한 
 
 <br/>
 
-📊 **[EDA 보러 가기](https://github.com/boostcampaitech3/final-project-level3-recsys-14/blob/main/experiments/EDA/EDA.ipynb)**
+📊 **[EDA 보러 가기]()**
 
 **※ 데이터 분석 결과에 관한 자세한 내용은 EDA 파일을 참고해주세요.**
 
