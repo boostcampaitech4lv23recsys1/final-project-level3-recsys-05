@@ -6,6 +6,7 @@ model_api/main copy.py
 CDAE-Jan-27-2023_06-49-36.pth
 model_api/model/annoy.ann
 model_api/model/model.npz
+model_api/model/*.ipynb
 model_api/app.py
 model_api/log
 model_api/nohup.out

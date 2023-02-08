@@ -159,9 +159,10 @@ def review(input_list: List[int], item_id: int) :
     
     alsModel.partial_fit_users([0], t)
     result = alsModel.similar_users(0, 11, users=[user2vec[user] for user in temp.user_id.values])
-    users = [vec2user[user] for user in result[0].tolist()[1:]]
-
-    return temp[temp.user_id.isin(users)]['score\r'].mean()
+    result = [a for a, b in zip(*result) if b >= 0.2]
+    users = [vec2user[user] for user in result]
+    
+    return {'count':len(result), 'avg':temp[temp.user_id.isin(users)]['score\r'].mean()}
 
 @app.get('/')
 def test():
@@ -245,7 +246,7 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
     t = sparse.csr_matrix((tmp[2], (tmp[0], tmp[1])))
 
     alsModel.partial_fit_users([0], t)
-    simusers = alsModel.similar_users(0, 11)
+    simusers = alsModel.similar_users(0, top_k+1)
     recommend = [vec2user[user] for user in simusers[0].tolist()[1:]]
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
