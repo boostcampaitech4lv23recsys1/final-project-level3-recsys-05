@@ -10720,8 +10720,9 @@ textarea.form-control-lg {
 
 /*# sourceMappingURL=bootstrap-custom.css.map */
 .like {
-  width: 100px;
-  margin: 0 0 0 auto;
+  width: 100%;
+  height: 100%;
+  margin: auto 0 auto auto;
   color:#d63384;
 }
 
@@ -10818,4 +10819,8 @@ textarea.form-control-lg {
 
 .swiper-button-disabled {
   visibility: hidden;
+}
+
+.star {
+  height: 25px;
 }

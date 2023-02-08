@@ -31,9 +31,14 @@ function Product(props) {
           </a>
           <p className="card-text text-center text-muted mb-0 brand">{ brand }</p>
           <p className="card-text text-center text-muted mb-0 price">{ '￦' + [price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }</p>
-          <StarRate className="card-text text-center text-muted mb-0 star" star={ star } id={ id }/>
-          <div className="d-grid d-block text-center">
+          <br/>
+          <div className="row">
+          <div className = "col-9 star">
+            <StarRate star={ star } id={ id }/>
+          </div>
+          <div className="col-3 d-grid d-block text-center">
             <Heart liked={ wish } id={ id }/>
+          </div>
           </div>
         </div>
       </div>
