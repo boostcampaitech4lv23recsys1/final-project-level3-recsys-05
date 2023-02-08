@@ -7,6 +7,7 @@ import StarRate from '../products/StarRate';
 import { useParams } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import loading from '../landing/loading.gif';
+import nodata from '../landing/nodata.png';
 import Heart from '../products/Heart';
 import MyChart from './MyChart';
 import { Dropdown, DropdownButton, ButtonGroup } from 'react-bootstrap';
@@ -18,7 +19,6 @@ function Detail() {
     const [ similar, setSimilar ] = useState([]);
     const [ wishProducts, setWishProducts ] = useState([]);
     const [ clicked, setClicked ] = useState(false);
-    const [ avg, setAvg ] = useState(0);
     const [activated, setActivated] = useState(5);
     const item_id = Number(useParams()['itemid']);
 
@@ -97,22 +97,26 @@ function Detail() {
         })
           .then((response) => response.data)
           .then((data) => {
-            const Example = ({ data }) => (
-              <img
-                style={{ width: '1000px', height: '250px' }}
-                src={`data:image/jpeg;base64,${data}`}
-                className="wordcloud"
-                alt="wordcloudPrev"
-              />
-            );
-            ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'));
+            console.log(data, data === '리뷰가 존재하지 않습니다.');
+            if(data === '리뷰가 존재하지 않습니다.') {
+                ReactDOM.render(<img
+                    style={{ width: '1000px', height: '250px' }}
+                    src={ nodata }
+                    className="wordcloud"
+                    alt="asd"
+                />, document.getElementById('cloudConPrev'));
+            } else {
+                const Example = ({ data }) => (
+                <img
+                    style={{ width: '1000px', height: '250px' }}
+                    src={`data:image/jpeg;base64,${data}`}
+                    className="wordcloud"
+                    alt="wordcloudPrev"
+                />
+                );
+                ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'));
+            }
           })
-          .catch((error) => console.log(error));
-    
-        axios
-          .post(`http://localhost:8000/review/${item_id}`, wishProducts)
-          .then((response) => response.data)
-          .then((data) => setAvg(data))
           .catch((error) => console.log(error));
     };
 
