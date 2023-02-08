@@ -50,6 +50,7 @@ function ItemSwiper(props) {
           )
         })
       }
+      <SwiperSlide><button>더보기</button></SwiperSlide>
       </Swiper>
     </>
   );
