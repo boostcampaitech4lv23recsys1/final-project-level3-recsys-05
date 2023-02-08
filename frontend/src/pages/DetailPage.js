@@ -24,7 +24,7 @@ function Detail() {
 
     useEffect(() => {
         const controller = new AbortController();
-        ReactDOM.render(<><br/><img style={{width: "100px", height: "100px", margin: "188px"}} src={loading} alt='loading'></img></>, document.getElementById('cloudConPrev'));
+        ReactDOM.render(<><br/><img style={{width: "100px", height: "100px", margin: "63px"}} src={loading} alt='loading'></img></>, document.getElementById('cloudConPrev'));
         // ReactDOM.render(<><br/><img src={loading} alt='loading'></img></>, document.getElementById('cloudConNext'));
         axios.get("http://34.64.87.78:8000/wishes/" + localStorage.getItem("token"))
         .then(response => response.data)
@@ -66,7 +66,7 @@ function Detail() {
             })
         .then(response => response.data)
         .then(data => {
-            const Example = ({ data }) => <img  style={{width: "1000px", height: "500px"}} src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
+            const Example = ({ data }) => <img  style={{width: "1000px", height: "250px"}} src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
             ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
         })
         .catch( error => console.log(error) );
@@ -83,7 +83,7 @@ function Detail() {
           <>
             <br />
             <img
-              style={{ width: '100px', height: '100px', margin: '188px' }}
+              style={{ width: '100px', height: '100px', margin: '63px' }}
               src={loading}
               alt="loading"
             />
@@ -99,7 +99,7 @@ function Detail() {
           .then((data) => {
             const Example = ({ data }) => (
               <img
-                style={{ width: '1000px', height: '500px' }}
+                style={{ width: '1000px', height: '250px' }}
                 src={`data:image/jpeg;base64,${data}`}
                 className="wordcloud"
                 alt="wordcloudPrev"
@@ -184,9 +184,7 @@ function Detail() {
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
-                    <br/>
-                    <hr/>
-                    <br/>
+                    <div class="p-3"><hr/></div>
                     <div className="d-flex justify-content-between p-3">
                         <div><h3>다른 사용자들의 리뷰를 정리해봤어요!</h3></div>
                         <DropdownComponent  className="ml-auto" />
@@ -203,9 +201,7 @@ function Detail() {
                     </div> */}
                     
                     {/* <div id='cloudConNext'></div> */}
-                    <br/>
-                    <hr/>
-                    <br/>
+                    <div class="p-3"><hr/></div>
                     <h3 className='p-3'>이런 상품은 어떠세요?</h3>
                     <br/>
                     <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
