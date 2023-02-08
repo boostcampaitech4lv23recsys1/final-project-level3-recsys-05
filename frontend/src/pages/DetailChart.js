@@ -23,14 +23,14 @@ function DetailChart({cate, ocate}) {
     datasets: [{
       label: '좋아하는 카테고리',
       data: cate,
-      backgroundColor: '#BEAED4',
-      boarderColor: 'white'
+      backgroundColor: 'white',
+      borderColor: "#BEAED4"
     },
     {
       label: '오늘의집 찜 목록',
       data: ocate,
-      backgroundColor: 'aqua',
-      boarderColor: 'white'
+      backgroundColor: '#AFEEEE',
+      borderColor: "#6495ED"
     }
     ]
   } :
@@ -39,13 +39,14 @@ function DetailChart({cate, ocate}) {
     datasets: [{
       label: '카테고리',
       data: cate,
-      backgroundColor: '#BEAED4',
-      boarderColor: 'white'
+      backgroundColor: 'white',
+      borderColor: '#BEAED4'
     }
     ]
   }
 
   const options = {
+    datasetFill: true
   }
 
   // const response = axios.get
