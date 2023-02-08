@@ -4,22 +4,46 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import StarRate from "../products/StarRate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Mychart from './Mychart'
+import DetailChart from './DetailChart'
 
 
 	
 function Mypage() {	
   const params = useParams();
   const [ products, setProducts ] = useState([]);	
-  const [ displayProducts, setDisplayProducts ]= useState(3);	
+  const [ productnos, setProductnos ] = useState([]);
+  const [ categoryCnt, setCategoryCnt ] = useState([]);
+  const [ oCategoryCnt, setOCategoryCnt] = useState([]);
   	
   useEffect(() => {
     console.log(params.userid)
-    axios.get('http://34.64.87.78:8000/wish/' + params.userid).then((resp) => {
-        setProducts([...resp.data])
-      }).catch((e) => {
-        console.log(e);
-      });
+    axios.get("http://34.64.87.78:8000/wish/" + params.userid)
+    .then(response => response.data)
+    .then(data => {
+      setProducts(data);
+    })
+    .catch((error) => console.log(error));
+
+
+    axios.get("http://34.64.87.78:8000/wishes/" + params.userid)
+    .then(response => response.data)
+    .then(data => {
+      axios.get("http://34.64.87.78:8000/username/" + params.userid)
+      .then(resp => {
+        console.log(resp.data[1]!==0 ? resp.data[1] : -1)
+        axios.post('http://115.85.181.95:30003/user_info?user_id=' + (resp.data[1]!==0 ? resp.data[1] : -1).toString(),  data)
+        .then( response => response.data)
+          .then( datum => {
+            setCategoryCnt(datum[0])
+            setOCategoryCnt(datum[1])
+          })
+          .catch( error => console.log(error) );
+      })
+      .catch( error => console.log(error) );
+    })
+    .catch((error) => console.log(error));
+
+    
   }, [])
 
   return (	
@@ -32,14 +56,13 @@ function Mypage() {
         <hr class="my-4" />	
       </div>	
       <div>
-          <Mychart/>
+          <DetailChart cate={categoryCnt} ocate={oCategoryCnt}/>
       </div>
       {/* card contents */}	
       <div className='container'>	
         <div className='historys'>	
           {	
             products.map((obj, i) => {
-              console.log(obj)
               const payload = {
                 item_ids: obj.item_id, 
                 titles: obj.title, 

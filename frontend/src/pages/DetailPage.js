@@ -18,6 +18,7 @@ function Detail() {
     const [ similar, setSimilar ] = useState([]);
     const [ wishProducts, setWishProducts ] = useState([]);
     const [ clicked, setClicked ] = useState(false);
+    const [ avg, setAvg ] = useState(0);
     const [activated, setActivated] = useState(5);
     const item_id = Number(useParams()['itemid']);
 
@@ -30,7 +31,7 @@ function Detail() {
         .then(data => {
           setWishProducts(data);
           setClicked(data.includes(item_id));
-          axios.post(`http://49.50.172.201:30002/recommend/similar/review?item_id=${item_id}&top_k=${10}`, data)
+          axios.post(`http://115.85.181.95:30003/similar/review?item_id=${item_id}`, data)
           .then(response => response.data)
           .then(data => {
             if(data.count >= 1) {
