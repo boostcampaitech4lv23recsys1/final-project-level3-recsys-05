@@ -243,9 +243,9 @@ Item2Vec을 통해 상품 Latent Vector를 학습하고, NNS 를 통해 해당 �
 
 <br/>
 
-📹 **[발표 영상 보러 가기]()**   
+📹 **[발표 영상 보러 가기](https://studio.youtube.com/video/q-8M_XKPtq0/edit)**   
 
-🔖 **[발표 자료 보러 가기]()**
+🔖 **[발표 자료 보러 가기](https://drive.google.com/file/d/15H6MWDlCpFNJJfn7yGP2zCNhlQaA15MJ/view?usp=share_link)**
 
 
 <br/>
