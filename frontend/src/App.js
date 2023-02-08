@@ -19,6 +19,7 @@ function App() {
   }, []);
 
   return (
+    <div className="App">
     <Template logined={logined}>
       <Switch>
         <Route path="/products" exact>
@@ -47,6 +48,7 @@ function App() {
         </Route>
       </Switch>
     </Template>
+    </div>
   );
 }
 
