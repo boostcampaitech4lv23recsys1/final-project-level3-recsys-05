@@ -200,17 +200,6 @@ async def get_wordcloud(item_id: int = Query(...), split: int = Query(...), labe
     img = from_image_to_bytes(gen.to_image())
     return JSONResponse(img)
 
-    # text = '\n'.join(data.loc[(data['item_id'] == item_id) & (data['split'] == split), 'review'].tolist())
-    # if text:
-        # okt = Okt()
-        # nouns = okt.nouns(text)
-        # c = Counter(nouns)
-        # gen = wc.generate_from_frequencies(c)
-        # img = from_image_to_bytes(gen.to_image())
-        # return JSONResponse(img)
-    
-    return '리뷰가 존재하지 않습니다.'
-
 @app.post('/recommend/normal', description='get normal recommendation')
 async def get_normal_recommendation(filters : Filters, k : int):
 
@@ -231,11 +220,7 @@ async def get_normal_recommendation(filters : Filters, k : int):
 def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: List[int]):
     if user_id != -1:
         input_list = data2.loc[data2['user_id:token'] == user_id, 'item_id:token'].tolist() + input_list
-        print("**" * 10)
-        print(f"input_list : {input_list}")
 
-    print(f"user : {filters}")
-    
     alsModel = AlternatingLeastSquares()
     alsModel = alsModel.load('model/model.npz')
 
@@ -251,9 +236,7 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
     recommend = product_si.loc[product_si['item_id'].isin(result)]
-    # if filters and (not filters.price_s and filters.price_e == LIMIT and filters.category == DEFAULT_CATEGORY):
     return get_item_info(recommend, filters, top_k)
-    # return get_item_info(recommend, top_k)
 
 @app.post('/recommend/similar/item', description='get simlilar item')
 def get_similar_item(item_id: int, top_k: int):
@@ -295,29 +278,18 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int, user_id: int)
     # sort & topk
     pred_list = np.argsort(rating_pred)[np.arange(len(rating_pred)), ::-1]
 
-    # ind = np.argpartition(rating_pred, -split)[:, -split:]
-    # arr_ind = rating_pred[np.arange(len(rating_pred))[:, None], ind]
-    # arr_ind_argsort = np.argsort(arr_ind)[np.arange(len(rating_pred)), ::-1]
-
-    # pred_list = ind[
-    #     np.arange(len(rating_pred))[:, None], arr_ind_argsort
-    # ]
-
     output_list = []
     for item in pred_list[0]:
         try:
             output_list.append(int(item_id2token[item]))
         except:
             pass
-    # if filters and (not filters.price_s and filters.price_e == LIMIT and filters.category == DEFAULT_CATEGORY):
     df_ = product_si.loc[(product_si['selling_price'] >= filters.price_s) & (product_si['selling_price'] <= filters.price_e) &
                 (product_si['category0'].isin(filters.category))]
     cnt = 0
     item_ids, img_urls, original_prices, selling_prices, star_avgs, brands, titles = [], [], [], [], [], [], []
     pattern1 = r'\([^)]*\)'
     pattern2 = r'\[[^)]*\]'
-    # titles = titles.apply(lambda x: re.sub(pattern1, '', x))
-    # titles = titles.apply(lambda x: re.sub(pattern2, '', x))
     for id in output_list:
         if id in df_['item_id'].tolist():
             id_info = df_[df_['item_id']==id]
@@ -344,8 +316,6 @@ def rec_topk(filters : Filters, input_list: List[int], top_k: int, user_id: int)
         tmp['brands'] = g
         result__.append(tmp)
     return result__
-    # return get_item_info(result, filters, top_k)
-    # return get_item_info(result, top_k)
 
 @app.get('/review_cls', description='get pos and neg ratio')
 def get_review_cls(item_id: int):
