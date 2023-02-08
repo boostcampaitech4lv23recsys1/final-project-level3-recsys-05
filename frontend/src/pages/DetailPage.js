@@ -236,6 +236,7 @@ const ImgBox = styled.div`
         height: 500px;
         min-height: 230px;
         border: none;
+        border-radius: 20px;
         vertical-align: middle;
         max-width: 100%;
     }
