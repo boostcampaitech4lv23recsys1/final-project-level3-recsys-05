@@ -9,6 +9,8 @@ import ReactDOM from 'react-dom';
 import loading from '../landing/loading.gif';
 import Heart from '../products/Heart';
 import MyChart from './MyChart';
+import { Dropdown, DropdownButton, ButtonGroup } from 'react-bootstrap';
+
 
 // 상세 제품 페이지
 function Detail() {
@@ -16,19 +18,20 @@ function Detail() {
     const [ similar, setSimilar ] = useState([]);
     const [ wishProducts, setWishProducts ] = useState([]);
     const [ clicked, setClicked ] = useState(false);
+    const [ avg, setAvg ] = useState(0);
     const [activated, setActivated] = useState(5);
     const item_id = Number(useParams()['itemid']);
 
     useEffect(() => {
         const controller = new AbortController();
-        ReactDOM.render(<><br/><img src={loading} alt='loading'></img></>, document.getElementById('cloudConPrev'));
+        ReactDOM.render(<><br/><img style={{width: "100px", height: "100px", margin: "188px"}} src={loading} alt='loading'></img></>, document.getElementById('cloudConPrev'));
         // ReactDOM.render(<><br/><img src={loading} alt='loading'></img></>, document.getElementById('cloudConNext'));
         axios.get("http://34.64.87.78:8000/wishes/" + localStorage.getItem("token"))
         .then(response => response.data)
         .then(data => {
           setWishProducts(data);
           setClicked(data.includes(item_id));
-          axios.post(`http://49.50.172.201:30002/recommend/similar/review?item_id=${item_id}&top_k=${10}`, data)
+          axios.post(`http://115.85.181.95:30003/similar/review?item_id=${item_id}`, data)
           .then(response => response.data)
           .then(data => {
             if(data.count >= 1) {
@@ -58,28 +61,16 @@ function Detail() {
 
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${5}&label=${2}`,
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${5}&label=${2}`,
             // responseType:'blob'
             })
         .then(response => response.data)
         .then(data => {
-            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
+            const Example = ({ data }) => <img  style={{width: "1000px", height: "500px"}} src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
             ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
         })
         .catch( error => console.log(error) );
 
-        // axios({            
-        //     method:'GET',
-        //     url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${5}&label=${2}`,
-        //     // responseType:'blob'
-        //     })
-        // .then(response => response.data)
-        // .then(data => {
-        //     const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} class="wordcloud" alt='wordcloudNext'/>
-        //     ReactDOM.render(<Example data={data} />, document.getElementById('cloudConNext'))
-        // })
-        // .catch( error => console.log(error) );
-        
 
         return () => {
         controller.abort();
@@ -88,33 +79,58 @@ function Detail() {
 
     const onClickButton = (value) => {
         setActivated(value);
-        ReactDOM.render(<><br/><img src={loading} alt="loading"></img></>, document.getElementById('cloudConPrev'));
-        // ReactDOM.render(<><br/><img src={loading} alt="loading"></img></>, document.getElementById('cloudConNext'));
-
-        axios({            
-            method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}&label=2`,
-            })
-        .then(response => response.data)
-        .then(data => {
-            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
-            ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
-        })
-        .catch( error => console.log(error) );
-
-        // axios({            
-        //     method:'GET',
-        //     url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${0}&label=${1}`,
-        //     // responseType:'blob'
-        //     })
-        // .then(response => response.data)
-        // .then(data => {
-        //     const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} class="wordcloud" alt='wordcloudNext'/>
-        //     ReactDOM.render(<Example data={data} />, document.getElementById('cloudConNext'))
-        // })
-        // .catch( error => console.log(error) );
-    }
+        ReactDOM.render(
+          <>
+            <br />
+            <img
+              style={{ width: '100px', height: '100px', margin: '188px' }}
+              src={loading}
+              alt="loading"
+            />
+          </>,
+          document.getElementById('cloudConPrev')
+        );
     
+        axios({
+          method: 'GET',
+          url: `http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${value}&label=2`,
+        })
+          .then((response) => response.data)
+          .then((data) => {
+            const Example = ({ data }) => (
+              <img
+                style={{ width: '1000px', height: '500px' }}
+                src={`data:image/jpeg;base64,${data}`}
+                className="wordcloud"
+                alt="wordcloudPrev"
+              />
+            );
+            ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'));
+          })
+          .catch((error) => console.log(error));
+    
+        axios
+          .post(`http://localhost:8000/review/${item_id}`, wishProducts)
+          .then((response) => response.data)
+          .then((data) => setAvg(data))
+          .catch((error) => console.log(error));
+    };
+
+    const DropdownComponent = ({ item_id, wishProducts }) => {
+        return (
+            <Dropdown alignRight>
+              <Dropdown.Toggle variant="secondary">
+                {`${activated}점`}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {[5, 4, 3, 2, 1].map( (i) => (
+                  <Dropdown.Item key={i} onClick={() => onClickButton(i)}>{`${i}점`}</Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          );
+        };
+
     return (
         <>
             {product && (
@@ -169,8 +185,14 @@ function Detail() {
                         </ItemInfoBox>
                     </ItemBox>
                     <br/>
-                    <div className = 'filterStar d-flex flex-row'>
-                        
+                    <hr/>
+                    <br/>
+                    <div className="d-flex justify-content-between p-3">
+                        <div><h3>다른 사용자들의 리뷰를 정리해봤어요!</h3></div>
+                        <DropdownComponent  className="ml-auto" />
+                    </div>
+                    <div id='cloudConPrev'></div>
+                    {/* <div className = 'd-flex flex-row'>
                         {[5, 4, 3, 2, 1].map( (i) =>{
                             return (
                                 <button value={ i } key={i} className={`btn ${activated === i ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => {               
@@ -178,12 +200,13 @@ function Detail() {
                                 }}>{ `${i}점` }</button>
                             )  
                         })}
-                        
-                    </div>
-                    <div id='cloudConPrev'></div>
+                    </div> */}
+                    
                     {/* <div id='cloudConNext'></div> */}
                     <br/>
-                    <h3 style={{textIndent: "20px"}}>유사한 상품</h3>
+                    <hr/>
+                    <br/>
+                    <h3 className='p-3'>유사한 상품</h3>
                     <br/>
                     <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
                 </Container>
