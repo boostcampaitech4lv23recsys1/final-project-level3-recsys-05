@@ -14,7 +14,9 @@ function MyChart(props) {
         lineWidth={18}
         rounded
         animate
-        label={({dataEntry}) => dataEntry.value + '%'}/>
+        label={({dataEntry}) => dataEntry.value + '%'}
+        labelPosition={35}
+        labelStyle={{'font-weight':'bold'}}/>
     )
 }
 
