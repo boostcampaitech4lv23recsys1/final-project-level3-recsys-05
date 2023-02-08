@@ -61,7 +61,7 @@ UNZYP 웹 서비스를 통해 다양한 접근으로 유저가 선호할 만한 
 
 ### **상품 상세 페이지**
 
-> ![상품 상세 정보](https://user-images.githubusercontent.com/86918832/217480918-bf42793f-61d5-443e-b01d-1b4b9210dd80.png)
+> ![상품 상세 정보](https://user-images.githubusercontent.com/86918832/217482149-940771d3-dba3-44ca-bce3-515bc6ac3281.png)
 
 - 선택한 상품의 상세 정보를 제공합니다. 기본적인 정보와 더불어 유사한 유저 n명이 만족한 비율을 노출합니다.
 
@@ -73,7 +73,7 @@ UNZYP 웹 서비스를 통해 다양한 접근으로 유저가 선호할 만한 
 
 <br/>
 
-> ![유사 아이템 추천](https://user-images.githubusercontent.com/86918832/217446346-a9f24f95-e01d-41d2-bded-efe1a93b1d5d.png)
+> ![유사 아이템 추천](https://user-images.githubusercontent.com/86918832/217482257-ea1830c1-0805-4b75-9cd7-89a3ac2e5457.png)
 
 - 해당 상품과 유사한 상품을 추천합니다.
 
