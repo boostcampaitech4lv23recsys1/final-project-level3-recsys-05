@@ -7,8 +7,8 @@ function MyChart(props) {
         <PieChart
         data={[{
             value: x,
-            color: '#F6CB44',
-            title: 'name1'
+            color: '#BEAED4',
+            title: 'positive'
         }]}
         reveal={x}
         lineWidth={18}

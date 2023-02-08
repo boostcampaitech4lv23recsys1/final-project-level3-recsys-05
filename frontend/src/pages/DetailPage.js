@@ -17,7 +17,6 @@ function Detail() {
     const [ wishProducts, setWishProducts ] = useState([]);
     const [ clicked, setClicked ] = useState(false);
     const [activated, setActivated] = useState(5);
-    const [ avg, setAvg ] = useState(0);
     const item_id = Number(useParams()['itemid']);
 
     useEffect(() => {
@@ -31,7 +30,14 @@ function Detail() {
           setClicked(data.includes(item_id));
           axios.post(`http://49.50.172.201:30002/recommend/similar/review?item_id=${item_id}&top_k=${10}`, data)
           .then(response => response.data)
-          .then(data => setAvg(data))
+          .then(data => {
+            if(data.count >= 1) {
+                ReactDOM.render(<div>유사한 유저 <br/>{ data.count }명의 <br/>만족한 비율</div>, document.getElementsByClassName('textCon')[0]);
+                ReactDOM.render(<MyChart avg={ data.avg }/>, document.getElementsByClassName("chartCon")[0]);
+            } else {
+                ReactDOM.render(<div>유사한 유저가 남긴 리뷰가 없습니다.</div>, document.getElementsByClassName['textCon'][0])
+            }
+          })
           .catch(error => console.log(error))
         })
         .catch( error => console.log(error) );
@@ -126,8 +132,8 @@ function Detail() {
                                 <StarRate star = {product.review_avg} />
                                 <div style={{"marginTop": "13px"}}>{product.wish_count} 명이 찜 했어요!</div>
                                 </div>
-                                <div className="col-3">유사한 유저의<br/>만족한 비율</div>
-                                <div className='col-2'><MyChart avg={ avg }/></div>
+                                <div className="col-3 textCon"></div>
+                                <div className='col-2 chartCon'></div>
                                 </div>
                                 <hr></hr>
                                 <small className="category">{ product.category0 }</small>
