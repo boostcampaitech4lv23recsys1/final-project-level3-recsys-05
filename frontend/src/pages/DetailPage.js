@@ -206,7 +206,7 @@ function Detail() {
                     <br/>
                     <hr/>
                     <br/>
-                    <h3 className='p-3'>유사한 상품</h3>
+                    <h3 className='p-3'>이런 상품은 어떠세요?</h3>
                     <br/>
                     <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
                 </Container>

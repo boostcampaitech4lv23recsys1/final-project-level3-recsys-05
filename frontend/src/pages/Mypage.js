@@ -156,8 +156,10 @@ function Mypage() {
           <div className='p-2'><DetailChart cate={categoryCnt} ocate={oCategoryCnt}/></div>
           <div><CustomizedTables/></div>
       </div>
+      <div class="p-5"><hr/></div>
       {/* card contents */}	
       <div className='container'>	
+      <h2 class="mb-4">찜한 상품이에요</h2>
         <div className='historys'>	
           {	
             products.map((obj, i) => {
