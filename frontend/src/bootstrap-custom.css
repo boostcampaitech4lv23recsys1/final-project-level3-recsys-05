@@ -10722,7 +10722,6 @@ textarea.form-control-lg {
 .like {
   width: 100%;
   height: 100%;
-  margin: auto 0 auto auto;
   color:#d63384;
 }
 
@@ -10821,6 +10820,8 @@ textarea.form-control-lg {
   visibility: hidden;
 }
 
-.star {
-  height: 25px;
+
+
+.svg-inline--fa.fa-w-16{
+  height: 100%;
 }

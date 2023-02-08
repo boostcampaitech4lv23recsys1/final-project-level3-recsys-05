@@ -5,7 +5,7 @@ import { useEffect } from "react";
 function Heart({ liked, id }) {
     useEffect(() => {
       const heart = document.getElementById("like"+id);
-      heart.setAttribute('viewBox', "150 150 300 300"); 
+      heart.setAttribute('viewBox', "70 150 300 300"); 
     }, [id])
 
     const handleClick = () => {
