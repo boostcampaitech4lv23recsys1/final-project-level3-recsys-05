@@ -83,8 +83,10 @@ item_id2token = dataset.field2id_token[config['ITEM_ID_FIELD']]
 token2user_id = {id: i for i, id in enumerate(user_id2token)}
 token2item_id = {id: i for i, id in enumerate(item_id2token)}
 
-user2vec = {v:i for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
-vec2user = {i:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+user2vec = {v:i+1 for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+vec2user = {i+1:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+item2vec = {v:i for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+vec2item = {i:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
 
 class Filters(BaseModel):
     price_s : Optional[int] = 0
@@ -142,24 +144,32 @@ def get_item_info(df, filters=None, k=10):
 
     return result
 
-def review(input_list: List[int]) :
-    aimodel = AlternatingLeastSquares()
-    aimodel = aimodel.load('model/model.npz')
+@app.post("/similar/review")
+def review(input_list: List[int], item_id: int) :
+    temp = data2[data2.item_id == item_id]
 
-    with open('model/item2vec.pickle', 'rb') as f :
-        item2vec = pickle.load(f)
+    alsModel = AlternatingLeastSquares()
+    alsModel = alsModel.load('model/model.npz')
 
-    itemlist2vec = [item2vec[item] for item in input_list]
-
-    users = [0 for _ in itemlist2vec]
-    items = [item for item in itemlist2vec]
-    inter = [1 for _ in itemlist2vec]
+    d = []
+    for item in input_list :
+        d.append([0, item2vec[item], 1])
+    tmp = pd.DataFrame(d)
+    t = sparse.csr_matrix((tmp[2], (tmp[0], tmp[1])))
     
+<<<<<<< HEAD
     matrix = sparse.csr_matrix((inter, (users, items)))
 
     latent = aimodel.recalculate_user(0, matrix)
     # print(latent)
     return latent[0]
+=======
+    alsModel.partial_fit_users([0], t)
+    result = alsModel.similar_users(0, 11, users=[user2vec[user] for user in temp.user_id.values])
+    users = [vec2user[user] for user in result[0].tolist()[1:]]
+
+    return temp[temp.user_id.isin(users)]['score\r'].mean()
+>>>>>>> fb53e021b00a60de682090c93878b9f4770d037a
 
 @app.get('/')
 def test():
@@ -232,6 +242,7 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
         print(f"input_list : {input_list}")
 
     print(f"user : {filters}")
+<<<<<<< HEAD
     # response = requests.request(method='get', url=f'http://34.64.87.78:8000/gogo/{user_id}')
     # user_latent = response.json()
     user_latent = review(input_list)
@@ -245,6 +256,21 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
     # recommend = ann.get_nns_by_item(user2vec[user_id], n=top_k**2)
     recommend = ann.get_nns_by_vector(user_latent, n=top_k**2);
     recommend = [vec2user[rec] for rec in recommend]
+=======
+    
+    alsModel = AlternatingLeastSquares()
+    alsModel = alsModel.load('model/model.npz')
+
+    d = []
+    for item in input_list :
+        d.append([0, item2vec[item], 1])
+    tmp = pd.DataFrame(d)
+    t = sparse.csr_matrix((tmp[2], (tmp[0], tmp[1])))
+
+    alsModel.partial_fit_users([0], t)
+    simusers = alsModel.similar_users(0, 11)
+    recommend = [vec2user[user] for user in simusers[0].tolist()[1:]]
+>>>>>>> fb53e021b00a60de682090c93878b9f4770d037a
 
     result = data2.loc[data2['user_id:token'].isin(recommend), 'item_id:token'].tolist()
     recommend = product_si.loc[product_si['item_id'].isin(result)]
