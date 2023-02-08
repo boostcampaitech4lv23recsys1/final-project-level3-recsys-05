@@ -105,3 +105,12 @@
   right: 10px;
   top: 10px;
 }
+
+.App {
+  font-family: "thefont";
+}
+
+@font-face {
+	font-family: "thefont";
+	src: url('/usr/share/fonts/nanum/NanumGothic.ttf');
+}

@@ -18,8 +18,6 @@ ChartJS.register(
 )
 
 function DetailChart({cate, ocate}) {
-  const [categoryCnt, setCategoryCnt] = useState([])
-
   const data = ocate.reduce((a, b) => a + b, 0)!==0 ? {
     labels: ['생활용품', '가구', '조명', '데코·식물', '패브릭', '수납·정리', '공구·DIY', '주방용품'],
     datasets: [{
