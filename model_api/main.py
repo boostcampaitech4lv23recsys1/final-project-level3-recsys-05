@@ -51,23 +51,24 @@ app.add_middleware(
 )
 
 data = pd.read_csv("data/for_word_cloud.csv", lineterminator='\n')
-data2 = pd.read_csv("data/final_v2.inter", lineterminator='\n')
+data2 = pd.read_csv("data/ohou-v4.inter", lineterminator='\n')
 product_si = pd.read_csv("data/side_info.csv")
-reivew_classification = pd.read_csv("data/review_classification.csv")
+reivew_classification = pd.read_csv("data/review_classification_user.csv")
 
 DEFAULT_CATEGORY = product_si['category0'].unique().tolist()
 
-icon = Image.open('data/UNZYP_mask.png')
+icon = Image.open('data/UNZYP_mask2.png')
 mask = Image.new("RGB", icon.size, (255,255,255))
 mask.paste(icon,icon)
 mask = np.array(mask)
 
-wc = WordCloud(font_path='/usr/share/fonts/nanum/NanumGothicBold.ttf',
+# /usr/share/fonts/nanum/NanumGothicBold.ttf
+wc = WordCloud(font_path='/usr/share/fonts/nanum/fonts/ttf/BMDOHYEON_ttf.ttf',
                background_color='white',
                width=800, height=600,
                max_words=200,
                mask=mask,
-               colormap='seismic')
+               colormap='Purples_r')
 
  # model, dataset 불러오기
 config, model, dataset, train_data, _, _ = load_data_and_model("model/RecVAE-Jan-27-2023_06-50-00.pth")
@@ -85,8 +86,8 @@ token2item_id = {id: i for i, id in enumerate(item_id2token)}
 
 user2vec = {v:i+1 for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
 vec2user = {i+1:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
-item2vec = {v:i for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
-vec2item = {i:v for i, v in enumerate(sorted(data2['user_id:token'].unique()))}
+item2vec = {v:i for i, v in enumerate(sorted(data2['item_id:token'].unique()))}
+vec2item = {i:v for i, v in enumerate(sorted(data2['item_id:token'].unique()))}
 
 class Filters(BaseModel):
     price_s : Optional[int] = 0
@@ -146,7 +147,7 @@ def get_item_info(df, filters=None, k=10):
 
 @app.post("/similar/review")
 def review(input_list: List[int], item_id: int) :
-    temp = data2[data2.item_id == item_id]
+    temp = reivew_classification[reivew_classification.item_id == item_id]
 
     alsModel = AlternatingLeastSquares()
     alsModel = alsModel.load('model/model.npz')
@@ -162,7 +163,7 @@ def review(input_list: List[int], item_id: int) :
     result = [a for a, b in zip(*result) if b >= 0.2]
     users = [vec2user[user] for user in result]
     avg = 0
-    for label, score in temp[temp.user_id.isin(users)][['label', 'score\r']].values : 
+    for label, score in temp[temp.user_id.isin(users)][['label', 'score']].values : 
         if label == 1 :
             avg += score
         else :
@@ -198,9 +199,9 @@ async def get_wordcloud(item_id: int = Query(...), split: int = Query(...), labe
         try:
             with open(f'data/wc_data/{item_id}_{split}.pickle', 'rb') as f:
                 data = pickle.load(f)
-            
-            for word in data:
-                if len(word) < 2: del(data['word'])
+            tmp = data.copy()
+            for word in tmp:
+                if len(word) < 2: del(data[word])
         except:
             return '리뷰가 존재하지 않습니다.'
     gen = wc.generate_from_frequencies(data)
@@ -217,14 +218,12 @@ async def get_normal_recommendation(filters : Filters, k : int):
     basic_items = cnt_df.loc[cnt_df['user_id:token'] > 100]['item_id:token'].tolist()
 
     random_items = list(set(star_avg_items).intersection(set(basic_items)))
-    print(filters)
-    print(filters.price_s, filters.price_e, filters.category)
     recommend = product_si.loc[product_si['item_id'].isin(random_items)]
 
     return get_item_info(recommend, filters, k)
 
 @app.post('/recommend/similar/user', description='get similar user')
-def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: List[int]):
+async def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: List[int]):
     if user_id != -1:
         input_list = data2.loc[data2['user_id:token'] == user_id, 'item_id:token'].tolist() + input_list
 
@@ -246,26 +245,20 @@ def get_similar_user(filters : Filters, user_id: int, top_k: int, input_list: Li
     return get_item_info(recommend, filters, top_k)
 
 @app.post('/recommend/similar/item', description='get simlilar item')
-def get_similar_item(item_id: int, top_k: int):
+async def get_similar_item(item_id: int, top_k: int):
     from gensim.models import Word2Vec
 
     model = Word2Vec.load('model/item2vec.model')
     item_vectors = model.wv
-    index = [i for i, _ in item_vectors.most_similar(item_id, topn=top_k)]
+    index = [i for i, _ in item_vectors.most_similar(item_id, topn=max(top_k**2, 100))]
     result = product_si[product_si['item_id'].isin(index)]
 
     return get_item_info(df=result, k=top_k)
 
 @app.post("/recommend/personal", description="추천 결과를 반환합니다")
 def rec_topk(filters : Filters, input_list: List[int], top_k: int, user_id: int):
-    print(f"personal filters: {filters}")
-    print(f"personal filters: {input_list}")
-    print(f"personal filters: {top_k}")
-    print(f"personal filters: {user_id}")
     if user_id != -1:
         input_list = data2.loc[data2['user_id:token'] == user_id, 'item_id:token'].tolist() + input_list
-        print("**" * 10)
-        print(f"input_list : {input_list}")
     
     input_list = [token2item_id[str(i)] for i in input_list]
     
@@ -338,25 +331,50 @@ def get_review_cls(item_id: int):
             'neg_ratio' : neg_ratio
            }
 
-@app.get('/user_info', description='get user_info')
+@app.post('/user_info', description='get user_info')
 def get_user_info(user_id: int, input_list: List[int]):
     result_dict = {category : 0 for category in ['생활용품', '가구', '조명', '데코·식물', '패브릭', '수납·정리', '공구·DIY', '주방용품']}
+    ohous_result = [0 for _ in range(8)]
+    result = [0 for _ in range(8)]
 
     if user_id != -1:
-        df = data.loc[data['user_id:token'] == 520957, ['item_id:token', 'star_avg:float']]
+        df = data2.loc[data2['user_id:token'] == user_id, ['item_id:token', 'star_avg:float']]
         df.columns = ['item_id', 'star_avg']
-        input_list = df['item_id'].tolist() + input_list
-        item_info = product_si.loc[product_si['item_id'].isin(input_list), ['item_id', 'category0']]
+        input_list2 = df['item_id'].tolist()
+        item_info = product_si.loc[product_si['item_id'].isin(input_list2), ['item_id', 'category0']]
         merged = pd.merge(df, item_info, how='left', on='item_id')
         
         category_cnt = merged['category0'].value_counts()
         for category, cnt in zip(category_cnt.index, category_cnt.values):
             result_dict[category] = cnt
-    else:
-        category_cnt = product_si.loc[product_si['item_id'].isin(input_list), 'category0'].value_counts()
-        for category, cnt in zip(category_cnt.index, category_cnt.values):
-            result_dict[category] = cnt
 
-    return result_dict
+        for category, cnt in result_dict.items():
+            cnt = int(cnt)
+            if category == '생활용품': ohous_result[0] = cnt
+            if category == '가구': ohous_result[1] = cnt
+            if category == '조명': ohous_result[2] = cnt
+            if category == '데코·식물': ohous_result[3] = cnt
+            if category == '패브릭': ohous_result[4] = cnt
+            if category == '수납·정리': ohous_result[5] = cnt
+            if category == '공구·DIY': ohous_result[6] = cnt
+            if category == '주방용품': ohous_result[7] = cnt
+    
+    category_cnt = product_si.loc[product_si['item_id'].isin(input_list), 'category0'].value_counts()
+    for category, cnt in zip(category_cnt.index, category_cnt.values):
+        result_dict[category] = cnt
+    
+    for category, cnt in result_dict.items():
+        cnt = int(cnt)
+        if category == '생활용품': result[0] = cnt
+        if category == '가구': result[1] = cnt
+        if category == '조명': result[2] = cnt
+        if category == '데코·식물': result[3] = cnt
+        if category == '패브릭': result[4] = cnt
+        if category == '수납·정리': result[5] = cnt
+        if category == '공구·DIY': result[6] = cnt
+        if category == '주방용품': result[7] = cnt
+    
+    return [result, ohous_result]
+    
 # if __name__ == '__main__':
 #     uvicorn.run("main:app", host="0.0.0.0", port=30002)#, reload=True)
