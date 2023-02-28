@@ -1,0 +1,3 @@
+AI Stage server 기준
+export OMP_NUM_THREADS=1
+먼저 실행
