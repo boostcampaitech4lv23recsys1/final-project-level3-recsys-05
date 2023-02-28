@@ -41,13 +41,12 @@ function ProductList() {
       axios.get("http://34.64.87.78:8000/username/" + logintoken)
       .then(resp => {
         setMyusername(resp.data[0]);
-        axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10&user_id=" + (resp.data[1]!==0 ? resp.data[1] : -1).toString() , {'input_list':data, 'filters':filter})      
+        axios.post("http://115.85.181.95:30003/recommend/personal?top_k=10&user_id=" + (resp.data[1]!==0 ? resp.data[1] : -1).toString() , {'input_list':data, 'filters':filter})
           .then( response => response.data)
           .then( datum => {
             setProducts(datum);
           })
           .catch( error => console.log(error) );
-
         axios.post(`http://115.85.181.95:30003/recommend/similar/user?user_id=${(resp.data[1]!=0 ? resp.data[1] : -1).toString()}&top_k=10`, {'input_list':data, 'filters':filter})      
           .then( response => response.data)
           .then( data => {
@@ -72,8 +71,6 @@ function ProductList() {
       setTotals(data);
     })
     .catch( error => console.log(error) );
-
-    
 
     // wish list gcp 서버에서 받아오기
     return () => {
@@ -130,7 +127,6 @@ function ProductList() {
       alert("가격이 입력되지 않았습니다.");
     }
   }
-
 
   return (
     <div className="container mt-5 py-4 px-xl-5">

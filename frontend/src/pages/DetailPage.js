@@ -12,7 +12,6 @@ import Heart from '../products/Heart';
 import MyChart from './MyChart';
 import { Dropdown, DropdownButton, ButtonGroup } from 'react-bootstrap';
 
-
 // 상세 제품 페이지
 function Detail() {
     const [ product, setProduct ] = useState([]);
@@ -70,7 +69,6 @@ function Detail() {
             ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
         })
         .catch( error => console.log(error) );
-
 
         return () => {
         controller.abort();
@@ -159,8 +157,6 @@ function Detail() {
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
-                                
-                                
                                 <PriceBox>
                                     <span>
                                         {[product.selling_price].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -179,6 +175,7 @@ function Detail() {
                                     <span>배송비 포함 <strong>{(product.selling_price + product.delivery_fee).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong>원</span>
                                     </span>
                                 </TotalPrice>
+                                <p>{`유저와 비슷한 유저가 평가한 점수입니다.\n ${parseInt(avg*100)}%`}</p>
                                 <ButtonBox>
                                     <CartBtn>
                                         <Heart liked={ clicked } id={ item_id }/>
