@@ -5,41 +5,43 @@ import ItemSwiper from '../products/ItemSwiper';
 import axios from 'axios';
 import StarRate from '../products/StarRate';
 import { useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import base64 from 'base-64';
 import ReactDOM from 'react-dom';
 import loading from '../landing/loading.gif';
+import nodata from '../landing/nodata.png';
+import Heart from '../products/Heart';
+import MyChart from './MyChart';
+import { Dropdown, DropdownButton, ButtonGroup } from 'react-bootstrap';
+
 
 // 상세 제품 페이지
 function Detail() {
     const [ product, setProduct ] = useState([]);
     const [ similar, setSimilar ] = useState([]);
     const [ wishProducts, setWishProducts ] = useState([]);
-    const [clicked, setClicked] = useState(false);
-    const theitemid = useParams()['itemid'];
-  
-    const handleClick = () => {
-      const heart = document.getElementById("like"+item_id).getElementsByTagName("path")[0];
-      if(clicked) {
-        axios.get("http://34.64.87.78:8000/unwishing/"+ localStorage.getItem("token") + "/" + theitemid);
-        heart.setAttribute("d", "M458.4 64.3C400.6 15.7 311.3 23 256 79.3 200.7 23 111.4 15.6 53.6 64.3-21.6 127.6-10.6 230.8 43 285.5l175.4 178.7c10 10.2 23.4 15.9 37.6 15.9 14.3 0 27.6-5.6 37.6-15.8L469 285.6c53.5-54.7 64.7-157.9-10.6-221.3zm-23.6 187.5L259.4 430.5c-2.4 2.4-4.4 2.4-6.8 0L77.2 251.8c-36.5-37.2-43.9-107.6 7.3-150.7 38.9-32.7 98.9-27.8 136.5 10.5l35 35.7 35-35.7c37.8-38.5 97.8-43.2 136.5-10.6 51.1 43.1 43.5 113.9 7.3 150.8z");
-        setClicked(false);
-        } else {
-        axios.get("http://34.64.87.78:8000/wishing/"+ localStorage.getItem("token") + "/" + theitemid);
-        heart.setAttribute("d", "M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z");
-        setClicked(true);
-        }
-    };
-
-    const item_id = useParams()['itemid'];
+    const [ clicked, setClicked ] = useState(false);
+    const [activated, setActivated] = useState(5);
+    const item_id = Number(useParams()['itemid']);
 
     useEffect(() => {
         const controller = new AbortController();
-        ReactDOM.render(<><br/><img src={loading}></img></>, document.getElementById('cloudCon'));
+        ReactDOM.render(<><br/><img style={{width: "100px", height: "100px", margin: "63px"}} src={loading} alt='loading'></img></>, document.getElementById('cloudConPrev'));
+        // ReactDOM.render(<><br/><img src={loading} alt='loading'></img></>, document.getElementById('cloudConNext'));
         axios.get("http://34.64.87.78:8000/wishes/" + localStorage.getItem("token"))
-        .then(response => {
-          setWishProducts(response.data);
-          setClicked(wishProducts.includes(Number(item_id)));
+        .then(response => response.data)
+        .then(data => {
+          setWishProducts(data);
+          setClicked(data.includes(item_id));
+          axios.post(`http://115.85.181.95:30003/similar/review?item_id=${item_id}`, data)
+          .then(response => response.data)
+          .then(data => {
+            if(data.count >= 1) {
+                ReactDOM.render(<div>유사한 유저 <br/>{ data.count }명의 <br/>만족한 비율</div>, document.getElementsByClassName('textCon')[0]);
+                ReactDOM.render(<MyChart avg={ data.avg }/>, document.getElementsByClassName("chartCon")[0]);
+            } else {
+                ReactDOM.render(<div>유사한 유저가 남긴 리뷰가 없습니다.</div>, document.getElementsByClassName['textCon'][0])
+            }
+          })
+          .catch(error => console.log(error))
         })
         .catch( error => console.log(error) );
 
@@ -49,51 +51,90 @@ function Detail() {
             setProduct(data);
         })
         .catch( error => console.log(error) );
-        axios.post(`http://115.85.181.95:30002/recommend/similar/item?item_id=${item_id}&top_k=10`)
+
+        axios.post(`http://115.85.181.95:30003/recommend/similar/item?item_id=${item_id}&top_k=10`)
         .then(response => response.data)
         .then(data => {
             setSimilar(data);
         })
         .catch( error => console.log(error) );
+
         axios({            
             method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${1}`,
+            url:`http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${5}&label=${2}`,
             // responseType:'blob'
             })
         .then(response => response.data)
         .then(data => {
-            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} />
-            ReactDOM.render(<Example data={data} />, document.getElementById('cloudCon'))
+            const Example = ({ data }) => <img  style={{width: "1000px", height: "250px"}} src={`data:image/jpeg;base64,${data}`} className="wordcloud" alt='wordcloudPrev'/>
+            ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'))
         })
         .catch( error => console.log(error) );
+
+
         return () => {
         controller.abort();
         }
-    }, []);
+    }, [item_id]);
 
     const onClickButton = (value) => {
-        const buttons = document.getElementsByClassName("starButton");
-        [0,1,2,3,4].map((i) => {
-            const button = buttons[i];
-            if(button.value === value) {
-                button.setAttribute('class', 'activate starButton');
-            } else {
-                button.setAttribute('class', 'deactivate starButton');
-            }
-        })
-        ReactDOM.render(<><br/><img src={loading}></img></>, document.getElementById('cloudCon'));
-        axios({            
-            method:'GET',
-            url:`http://115.85.181.95:30002/wordcloud/?item_id=${item_id}&split=${value}`,
-            })
-        .then(response => response.data)
-        .then(data => {
-            const Example = ({ data }) => <img src={`data:image/jpeg;base64,${data}`} />
-            ReactDOM.render(<Example data={data} />, document.getElementById('cloudCon'))
-        })
-        .catch( error => console.log(error) );
-    }
+        setActivated(value);
+        ReactDOM.render(
+          <>
+            <br />
+            <img
+              style={{ width: '100px', height: '100px', margin: '63px' }}
+              src={loading}
+              alt="loading"
+            />
+          </>,
+          document.getElementById('cloudConPrev')
+        );
     
+        axios({
+          method: 'GET',
+          url: `http://115.85.181.95:30003/wordcloud/?item_id=${item_id}&split=${value}&label=2`,
+        })
+          .then((response) => response.data)
+          .then((data) => {
+            console.log(data, data === '리뷰가 존재하지 않습니다.');
+            if(data === '리뷰가 존재하지 않습니다.') {
+                ReactDOM.render(<img
+                    style={{ width: '1000px', height: '250px' }}
+                    src={ nodata }
+                    className="wordcloud"
+                    alt="asd"
+                />, document.getElementById('cloudConPrev'));
+            } else {
+                const Example = ({ data }) => (
+                <img
+                    style={{ width: '1000px', height: '250px' }}
+                    src={`data:image/jpeg;base64,${data}`}
+                    className="wordcloud"
+                    alt="wordcloudPrev"
+                />
+                );
+                ReactDOM.render(<Example data={data} />, document.getElementById('cloudConPrev'));
+            }
+          })
+          .catch((error) => console.log(error));
+    };
+
+    const DropdownComponent = ({ item_id, wishProducts }) => {
+        return (
+            <Dropdown alignRight>
+              <Dropdown.Toggle variant="secondary">
+                {`${activated}점`}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {[5, 4, 3, 2, 1].map( (i) => (
+                  <Dropdown.Item key={i} onClick={() => onClickButton(i)}>{`${i}점`}</Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          );
+        };
+
     return (
         <>
             {product && (
@@ -106,14 +147,19 @@ function Detail() {
                             <InfoBox>
                                 <small>{product.brand}</small>
                                 <h1>{product.title}</h1>
+                                <div className="row">
+                                <div className="col-7">
                                 <StarRate star = {product.review_avg} />
                                 <div style={{"marginTop": "13px"}}>{product.wish_count} 명이 찜 했어요!</div>
+                                </div>
+                                <div className="col-3 textCon"></div>
+                                <div className='col-2 chartCon'></div>
+                                </div>
                                 <hr></hr>
                                 <small className="category">{ product.category0 }</small>
                                 <br/>
                                 <small className="category">{ product.category1 }</small>
-
-
+                                
                                 
                                 <PriceBox>
                                     <span>
@@ -135,33 +181,32 @@ function Detail() {
                                 </TotalPrice>
                                 <ButtonBox>
                                     <CartBtn>
-                                        <FontAwesomeIcon icon={clicked?["fas", "heart"]:["far", "heart"]} id={ `like${item_id}`} onClick={ handleClick } className={"like"}/>
+                                        <Heart liked={ clicked } id={ item_id }/>
                                     </CartBtn>
                                     <BuyBtn onClick={() => {window.open('https://ohou.se/productions/' + item_id)}}>오늘의집에서 보기</BuyBtn>
                                 </ButtonBox>
                             </InfoBox>
                         </ItemInfoBox>
                     </ItemBox>
-                    <br/>
-                    <div className = 'filterStar d-flex flex-row'>
-                        {[1,2,3,4,5].map( (i) =>{
-                            if(i === "1") {
-                                return (
-                                    <button value={ i } key={'button'+i} className="activate starButton" onClick={(event) => {               
-                                        onClickButton(event.target.value);
-                                    }}>{ `${i}점` }</button>
-                                )
-                            }
+                    <div class="p-3"><hr/></div>
+                    <div className="d-flex justify-content-between p-3">
+                        <div><h3>다른 사용자들의 리뷰를 정리해봤어요!</h3></div>
+                        <DropdownComponent  className="ml-auto" />
+                    </div>
+                    <div id='cloudConPrev'></div>
+                    {/* <div className = 'd-flex flex-row'>
+                        {[5, 4, 3, 2, 1].map( (i) =>{
                             return (
-                                <button value={ i } key={'button'+i} className="deactivate starButton" onClick={(event) => {               
-                                    onClickButton(event.target.value);
+                                <button value={ i } key={i} className={`btn ${activated === i ? 'btn-secondary' : 'btn-outline-secondary'}`} onClick={() => {               
+                                    onClickButton(i);
                                 }}>{ `${i}점` }</button>
                             )  
                         })}
-                    </div>
-                    <div id='cloudCon'></div>
-                    <br/>
-                    <h3>유사한 물품</h3>
+                    </div> */}
+                    
+                    {/* <div id='cloudConNext'></div> */}
+                    <div class="p-3"><hr/></div>
+                    <h3 className='p-3'>이런 상품은 어떠세요?</h3>
                     <br/>
                     <ItemSwiper products={ similar } field='4' wishProducts={ wishProducts }/>
                 </Container>
@@ -191,6 +236,7 @@ const ImgBox = styled.div`
         height: 500px;
         min-height: 230px;
         border: none;
+        border-radius: 20px;
         vertical-align: middle;
         max-width: 100%;
     }
@@ -274,7 +320,7 @@ const CartBtn = styled.button`
     border-radius: 4px;
     font-weight: bold;
     width: 49%;
-    background-color: rgb(255, 240, 239);
+    background-color: #d9cfe6;
     color: rgb(255, 111, 97);
     margin: 0;
     padding: 0;
@@ -289,7 +335,7 @@ const BuyBtn = styled.button`
     border-radius: 4px;
     font-weight: bold;
     width: 49%;
-    background-color: rgb(255, 111, 97);
+    background-color: #967cb9;
     color: rgb(255, 255, 255);
     margin: 0;
     padding: 0;

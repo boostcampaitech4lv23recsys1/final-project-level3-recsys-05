@@ -4,37 +4,165 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import StarRate from "../products/StarRate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import DetailChart from './DetailChart'
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 
 	
 function Mypage() {	
   const params = useParams();
   const [ products, setProducts ] = useState([]);	
-  const [ displayProducts, setDisplayProducts ]= useState(3);	
+  const [ productnos, setProductnos ] = useState([]);
+  const [ categoryCnt, setCategoryCnt ] = useState([]);
+  const [ oCategoryCnt, setOCategoryCnt] = useState([]);
   	
   useEffect(() => {
     console.log(params.userid)
-    axios.get('http://34.64.87.78:8000/wish/' + params.userid).then((resp) => {
-        setProducts([...resp.data])
-      }).catch((e) => {
-        console.log(e);
-      });
+    axios.get("http://34.64.87.78:8000/wish/" + params.userid)
+    .then(response => response.data)
+    .then(data => {
+      setProducts(data);
+    })
+    .catch((error) => console.log(error));
+
+    axios.get("http://34.64.87.78:8000/wishes/" + params.userid)
+    .then(response => response.data)
+    .then(data => {
+      axios.get("http://34.64.87.78:8000/username/" + params.userid)
+      .then(resp => {
+        console.log(resp.data[1]!==0 ? resp.data[1] : -1)
+        axios.post('http://115.85.181.95:30003/user_info?user_id=' + (resp.data[1]!==0 ? resp.data[1] : -1).toString(),  data)
+        .then( response => response.data)
+          .then( datum => {
+            setCategoryCnt(datum[0])
+            setOCategoryCnt(datum[1])
+          })
+          .catch( error => console.log(error) );
+      })
+      .catch( error => console.log(error) );
+    })
+    .catch((error) => console.log(error));
   }, [])
+
+  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: '#BEAED4',
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+  }));
+  
+  const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+  }));
+
+  // '생활용품', '가구', '조명', '데코·식물', '패브릭', '수납·정리', '공구·DIY', '주방용품'
+
+  function CustomizedTables() {
+    const rows = [  {category: '생활용품', numbers: categoryCnt[0]},
+    {category: '가구', numbers: categoryCnt[1]},
+    {category: '조명', numbers: categoryCnt[2]},
+    {category: '데코·식물', numbers: categoryCnt[3]},
+    {category: '패브릭', numbers: categoryCnt[4]},
+    {category: '수납·정리', numbers: categoryCnt[5]},
+    {category: '공구·DIY', numbers: categoryCnt[6]},
+    {category: '주방용품', numbers: categoryCnt[7]},
+    ];
+  
+    const rows2 = [  {category: '생활용품', numbers: oCategoryCnt[0] , numbers2: categoryCnt[0]},
+    {category: '가구', numbers: oCategoryCnt[1], numbers2: categoryCnt[1]},
+    {category: '조명', numbers: oCategoryCnt[2], numbers2: categoryCnt[2]},
+    {category: '데코·식물', numbers: oCategoryCnt[3], numbers2: categoryCnt[3]},
+    {category: '패브릭', numbers: oCategoryCnt[4], numbers2: categoryCnt[4]},
+    {category: '수납·정리', numbers: oCategoryCnt[5], numbers2: categoryCnt[5]},
+    {category: '공구·DIY', numbers: oCategoryCnt[6], numbers2: categoryCnt[6]},
+    {category: '주방용품', numbers: oCategoryCnt[7], numbers2: categoryCnt[7]},
+    ];
+
+    console.log(rows)
+    
+    return oCategoryCnt.reduce((a, b) => a + b, 0)===0 ?  (
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>카테고리</StyledTableCell>
+              <StyledTableCell align="right">좋아요</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <StyledTableRow key={row.name}>
+                <StyledTableCell component="th" scope="row">
+                  {row.category}
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.numbers}</StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    ):
+    (
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>카테고리</StyledTableCell>
+              <StyledTableCell align="right">오늘의 집 찜 목록</StyledTableCell>
+              <StyledTableCell align="right">좋아요</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows2.map((row) => (
+              <StyledTableRow key={row.name}>
+                <StyledTableCell component="th" scope="row">
+                  {row.category}
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.numbers}</StyledTableCell>
+                <StyledTableCell align="right">{row.numbers2}</StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  }
 
   return (	
     <div>	
-      {/* jumbotron */}	
-      <div class="bg-light p-5 rounded-lg">	
+      <div class="bg-light p-5 rounded-lg">
+        <br/>
         <h1 class="display-4">마이페이지</h1>	
         {/* <p class="lead">반가워요</p>	 */}
-        <hr class="my-4" />	
+        <hr/>	
       </div>	
+      <div className="d-flex p-3 m-2 justify-content-center">
+          <div className='p-2'><DetailChart cate={categoryCnt} ocate={oCategoryCnt}/></div>
+          <div><CustomizedTables/></div>
+      </div>
+      <div class="p-5"><hr/></div>
       {/* card contents */}	
       <div className='container'>	
+      <h2 class="mb-4">찜한 상품이에요</h2>
         <div className='historys'>	
           {	
             products.map((obj, i) => {
-              console.log(obj)
               const payload = {
                 item_ids: obj.item_id, 
                 titles: obj.title, 
@@ -49,21 +177,9 @@ function Mypage() {
         </div>
       </div>
     </div>	
-
   );	
 }	
-	
-function Card(props) {	
-  return (	
-    <>	
-      <div className='col-md-4'>	
-        <img src={ props.thepd.image_url } width="100%" />	
-        <h3>{ props.thepd.title }</h3>	
-        <p>{ props.thepd.review_avg } & { props.thepd.selling_price }</p>	
-      </div>	
-    </>	
-  )	
-}	
+
 
 
 function Product(props) {
@@ -93,7 +209,7 @@ function Product(props) {
   
   return (
       <div className={"card shadow-sm card" + field}>
-        <a href={ "#/detail/" + id } className="link" target="_blank">
+        <a href={ "#/detail/" + id } className="link" target="blank">
           <img
             className="card-img-top bg-dark cover"
             height="200"

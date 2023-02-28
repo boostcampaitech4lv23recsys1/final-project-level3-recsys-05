@@ -2915,32 +2915,32 @@ textarea.form-control-lg {
 
 .btn-secondary {
   color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #BEAED4;
+  border-color: #BEAED4;
 }
 .btn-secondary:hover {
   color: #fff;
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
+  background-color: #ab9cbe;
+  border-color: #988ba9;
 }
 .btn-check:focus + .btn-secondary, .btn-secondary:focus {
   color: #fff;
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
+  background-color: #988ba9;
+  border-color: #857994;
   box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
 }
 .btn-check:checked + .btn-secondary, .btn-check:active + .btn-secondary, .btn-secondary:active, .btn-secondary.active, .show > .btn-secondary.dropdown-toggle {
   color: #fff;
-  background-color: #0a58ca;
-  border-color: #0a53be;
+  background-color: #988ba9;
+  border-color: #857994;
 }
 .btn-check:checked + .btn-secondary:focus, .btn-check:active + .btn-secondary:focus, .btn-secondary:active:focus, .btn-secondary.active:focus, .show > .btn-secondary.dropdown-toggle:focus {
   box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
 }
 .btn-secondary:disabled, .btn-secondary.disabled {
   color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #cbbfdd;
+  border-color: #cbbfdd;
 }
 
 .btn-success {
@@ -2972,6 +2972,7 @@ textarea.form-control-lg {
   background-color: #198754;
   border-color: #198754;
 }
+
 
 .btn-info {
   color: #000;
@@ -3149,27 +3150,27 @@ textarea.form-control-lg {
 }
 
 .btn-outline-secondary {
-  color: #0d6efd;
-  border-color: #0d6efd;
+  color: #000;
+  border-color: #BEAED4;
 }
 .btn-outline-secondary:hover {
   color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #BEAED4;
+  border-color: #BEAED4;
 }
 .btn-check:focus + .btn-outline-secondary, .btn-outline-secondary:focus {
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
 }
 .btn-check:checked + .btn-outline-secondary, .btn-check:active + .btn-outline-secondary, .btn-outline-secondary:active, .btn-outline-secondary.active, .btn-outline-secondary.dropdown-toggle.show {
   color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #BEAED4;
+  border-color: #BEAED4;
 }
 .btn-check:checked + .btn-outline-secondary:focus, .btn-check:active + .btn-outline-secondary:focus, .btn-outline-secondary:active:focus, .btn-outline-secondary.active:focus, .btn-outline-secondary.dropdown-toggle.show:focus {
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
 }
 .btn-outline-secondary:disabled, .btn-outline-secondary.disabled {
-  color: #0d6efd;
+  color: #BEAED4;
   background-color: transparent;
 }
 
@@ -4358,7 +4359,7 @@ textarea.form-control-lg {
 }
 .accordion-button:not(.collapsed) {
   color: #1e2125;
-  background-color: #e9e9ea;
+  background-color: #BEAED4;
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.125);
 }
 .accordion-button:not(.collapsed)::after {
@@ -6255,6 +6256,7 @@ textarea.form-control-lg {
 
 .d-none {
   display: none !important;
+  height: 100%;
 }
 
 .shadow {
@@ -10718,8 +10720,8 @@ textarea.form-control-lg {
 
 /*# sourceMappingURL=bootstrap-custom.css.map */
 .like {
-  width: 100px;
-  margin: 0 0 0 auto;
+  width: 100%;
+  height: 100%;
   color:#d63384;
 }
 
@@ -10750,6 +10752,7 @@ textarea.form-control-lg {
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(10%, auto));
+  align-items: center;
 }
 
 .starButton {
@@ -10762,9 +10765,18 @@ textarea.form-control-lg {
   text-align: center;
 }
 
-#cloudCon {
+#cloudConPrev {
   text-align: center;
 }
+
+#cloudConNext {
+  text-align: center;
+}
+
+.wordcloud {
+  width: 100%;
+}
+
 .historys {
   display: grid;	
   row-gap: 10px;
@@ -10789,4 +10801,25 @@ textarea.form-control-lg {
 .filterbar {
   position: sticky;
   top: 10%;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    height:10px;
+    right:5px;
+    color: #BEAED4 !important;
+    fill: #BEAED4 !important;
+    stroke: #BEAED4 !important;
+}
+
+.swiper-button-disabled {
+  visibility: hidden;
+}
+
+.svg-inline--fa.fa-w-16{
+  height: 100%;
 }

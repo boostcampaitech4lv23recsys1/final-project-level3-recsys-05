@@ -6,6 +6,10 @@ import Container from 'react-bootstrap/Container';
 import { useState, useCallback, useEffect } from 'react'
 import { alignPropType } from "react-bootstrap/esm/types";
 import axios from "axios";
+import { Link } from 'react-router-dom';
+import Modal from 'react-awesome-modal'
+import mpLink1 from './ohouse1.png';
+import mpLink2 from './ohouse2.png'
 
 function Join(){
     const [email, setEmail] = useState("")
@@ -26,6 +30,16 @@ function Join(){
     const [isUsername, setIsUsername] = useState("")
     const [numberOhouse, setNumberOhouse] = useState("")
     const [ohouseCheck, setOhouseCheck] = useState(null)
+
+    const [modalVisible, setModalVisible] = useState(false)
+
+    const openmodal = () => {
+        setModalVisible(true)
+    }
+
+    const closemodal = () => {
+        setModalVisible(false)
+    }
 
     useEffect(() => {
         setOhouseCheck(/https?:\/\/(www\.)?ohou.se\/users\/([-_a-z0-9]{1,15})/i)
@@ -153,6 +167,20 @@ function Join(){
                         <Col sm>
                             <Form.Control type="text" placeholder="오늘의집 마이페이지 링크" onChange={onChangeOhouse}/>
                         </Col>
+                        <div className="mt-2">
+                            <div style={{textAlign: "right", fontSize: "13px"}}><Link onClick={openmodal}>오늘의집 마이페이지 링크가 뭔가요?</Link></div>
+                            <Modal visible={modalVisible} width="800" height="600" effect="fadeInUp" onClickAway={closemodal}>
+                                <div className='m-5'>
+                                <h2>오늘의집 마이페이지 링크가 뭔가요?</h2>
+                                <div>1. <Link onClick={() => window.open("https://ohou.se", '_blank')}>오늘의집</Link>에 접속하여 로그인 해주세요.</div>
+                                <div>2. 마이페이지에 접속해주세요.</div>
+                                <img src={mpLink1} width="700" className="mb-3"/>
+                                <div>3. 여기를 복사해서 붙여넣으세요.</div>
+                                <img src={mpLink2} width="700" className="mb-3"/>
+                                <div> • 오늘의집 계정이 없다면 빈칸으로 남겨주세요.</div>
+                                </div>
+                            </Modal>
+                        </div>
                     </Form.Group>
                     
 

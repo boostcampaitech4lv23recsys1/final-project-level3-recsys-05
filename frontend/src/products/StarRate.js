@@ -19,11 +19,11 @@ function StarRate(props) {
     const id = props.id;
 
     return (
-        <StarRateWrap>
+        <StarRateWrap className="star">
             {STAR_IDX_ARR.map((item, idx) => {
                 return ( 
                 <span className='star_icon' key={`${item}_${idx}_${id}`}>
-                    <svg xmlns='http://www.w3.org/2000/svg' width='100%' height='39' viewBox='0 0 15 13' fill='#cacaca'>
+                    <svg xmlns='http://www.w3.org/2000/svg' width='100%' height='20' viewBox='0 0 14 14' fill='#cacaca'>
                         <clipPath id={`${item}_${id}_StarClip`}>
                             <rect width={`${ratesResArr[idx]}`} height='39' />
                         </clipPath>
