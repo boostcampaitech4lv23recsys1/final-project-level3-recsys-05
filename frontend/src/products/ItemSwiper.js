@@ -39,6 +39,7 @@ function ItemSwiper(props) {
             slidesPerView: 5,
           },
         }}
+        max-width={"100%"}
         id={"swiper"+field}
       >
       {	

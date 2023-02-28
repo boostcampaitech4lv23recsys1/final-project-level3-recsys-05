@@ -66,9 +66,13 @@ function Login(){
                         </Button>
                     </div>
                 </Form>
-                <div className="mt-3" style={{textAlign: "center", fontSize: "13px"}}>
+                <div className="m-3" style={{textAlign: "center", fontSize: "13px"}}>
                     <Link to="/register">회원가입하기</Link>
                 </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
             </Container>
         </div>
     );

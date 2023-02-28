@@ -20,6 +20,7 @@ function App() {
 
   return (
     <Template logined={logined}>
+      <div className="App">
       <Switch>
         <Route path="/products" exact>
           <ProductList />
@@ -46,6 +47,7 @@ function App() {
           <Detail />
         </Route>
       </Switch>
+      </div>
     </Template>
   );
 }
